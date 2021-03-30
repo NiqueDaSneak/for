@@ -9,8 +9,8 @@ export type BottomTabParamList = {
   'Act': string;
 };
 
-export type TabOneParamList = {
-  TabOneScreen: undefined;
+export type TuneInParamList = {
+  TuneInScreen: undefined;
 };
 
 export type TabTwoParamList = {

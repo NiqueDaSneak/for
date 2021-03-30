@@ -6,11 +6,11 @@ import * as React from 'react';
 import {Image} from 'react-native'
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import TabOneScreen from '../screens/TabOneScreen';
+import TuneInScreen from '../screens/TuneInScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
+import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon'
-const BottomTab = createBottomTabNavigator<BottomTabParamList>();
+const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
@@ -21,7 +21,7 @@ export default function BottomTabNavigator() {
       tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
       <BottomTab.Screen
         name="Tune In"
-        component={TabOneNavigator}
+        component={TuneInNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => <TabBarIcon name="tuneIn" colorScheme={colorScheme} focused={focused} />,
         }}
@@ -44,23 +44,21 @@ export default function BottomTabNavigator() {
   );
 }
 
-// Each tab has its own navigation stack, you can read more about this pattern here:
-// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
+const TuneInStack = createStackNavigator();
 
-function TabOneNavigator() {
+function TuneInNavigator() {
   return (
-    <TabOneStack.Navigator>
-      <TabOneStack.Screen
-        name="TabOneScreen"
-        component={TabOneScreen}
-        options={{ headerTitle: 'Tab One Title' }}
+    <TuneInStack.Navigator>
+      <TuneInStack.Screen
+        name="TuneInScreen"
+        component={TuneInScreen}
+        options={{ headerTitle: 'Tune In' }}
       />
-    </TabOneStack.Navigator>
+    </TuneInStack.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const TabTwoStack = createStackNavigator();
 
 function TabTwoNavigator() {
   return (
