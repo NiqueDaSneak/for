@@ -8,7 +8,6 @@ const ModalConductor = ({colorScheme}: {colorScheme: string}) => {
   const {
     modalType,
     modalData,
-    showNewUserHelpModal
   } = state
 
   const closeModal = () => {
