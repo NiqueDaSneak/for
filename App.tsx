@@ -20,8 +20,8 @@ export default function App() {
       <SafeAreaProvider>
           <ModalContextProvider>
             <AuthContextProvider>
-            <Navigation colorScheme={colorScheme} />
-            <ModalConductor colorScheme={colorScheme}  />
+              <Navigation colorScheme={colorScheme} />
+              <ModalConductor colorScheme={colorScheme}  />
             </AuthContextProvider>
           </ModalContextProvider>
         <StatusBar />
