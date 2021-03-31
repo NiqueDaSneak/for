@@ -7,7 +7,9 @@ import React, {
   useState,
   Alert,
   useContext,
-  ReactChild
+  ReactChild,
+  ReactChildren,
+  ReactNode
 } from 'react'
 import { FirebaseAuthApplicationVerifier, FirebaseRecaptchaVerifier, FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha'
 import fb from 'firebase'
@@ -24,19 +26,11 @@ const initialState = {
     verificationCode: ''
   },
   isAuthenticated: false,
-  authenticating: false,
-  newUserLogin: false,
-  newUserData: null,
   activeUser: {
     id: null,
     phone: null,
-    username: null
   },
   loggingOut: false,
-  // needSaveUsername: {
-  //   value: false,
-  //   username: null
-  // }
 }
 
 const reducer = (
@@ -54,7 +48,6 @@ const reducer = (
       },
       activeUser: action.user,
       isAuthenticated: true,
-      newUserData: null,
       creatingNewUser: false
     }
   case 'PHONE_VERIFICATION':
@@ -89,43 +82,12 @@ const reducer = (
         username: null
       }
     }
-  case 'NEW_USER_LOGIN':
-    return {
-      ...state,
-      newUserLogin: true,
-      activeUser: {id: action.id}
-    }
-  case 'NEW_USER_LOGGED_IN':
-    return {
-      ...state,
-      newUserLogin: false
-    }
-  case 'SAVE_USERNAME':
-    return {
-      ...state,
-      needSaveUsername: {
-        value: true,
-        username: action.username 
-      }
-    }
-  case 'SAVED_USERNAME':
-    return {
-      ...state,
-      activeUser: {
-        ...state.activeUser,
-        username: action.username
-      },
-      needSaveUsername: {
-        value: false,
-        username: null
-      }
-    }
   default:
     throw new Error()
   }
 }
 
-export const AuthContextProvider = ({ children }: { children: ReactChild;}) => {
+export const AuthContextProvider = ({ children }: { children: ReactNode;}) => {
   const recaptchaVerifier = useRef()
   const [firebaseVerificationResponse, setFirebaseVerificationResponse] = useState('')
   const [modalState, modalDispatch] = useContext(ModalContext)
@@ -194,17 +156,13 @@ export const AuthContextProvider = ({ children }: { children: ReactChild;}) => {
   useEffect(
     () => {
       if (state.phoneLogin.loggingIn) {
-        console.log('trying to confirm code...', state.phoneLogin.phoneNumber)
         const phoneProvider = new fb.auth.PhoneAuthProvider()
-        // try catch please
         try {
           phoneProvider
           .verifyPhoneNumber(
             `+1${state.phoneLogin.phoneNumber}`, recaptchaVerifier.current
           ).then(val => {
             setFirebaseVerificationResponse(val)
-            console.log('captcha is done')
-            // open modal back up
             modalDispatch({
               type: 'OPEN',
               modalType: 'GET_PHONE' 
@@ -234,13 +192,16 @@ export const AuthContextProvider = ({ children }: { children: ReactChild;}) => {
                 db.collection('Users').doc(docRef.id).update({ id: docRef.id }).then(() => {
                     dispatch({
                       type: 'LOGIN_USER', 
-                      user:                     
-                    {
+                      user: {
                       id: docRef.id,
                       phone: result.user.phoneNumber,
-                      username: null
-                    }
+                      }
                     })
+                    modalDispatch({
+                      type: 'OPEN',
+                      modalType: 'SHOW_NEW_HELP' 
+                    })  
+        
                 })
               })
             }
