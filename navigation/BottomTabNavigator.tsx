@@ -6,10 +6,12 @@ import * as React from 'react';
 import {Image} from 'react-native'
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import TuneInScreen from '../screens/TuneInScreen';
+import TuneInScreen from '../screens/tuneIn/TuneInScreen';
+import QuestionsListScreen from '../screens/tuneIn/QuestionsListScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon'
+
 const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -53,6 +55,11 @@ function TuneInNavigator() {
         name="TuneInScreen"
         component={TuneInScreen}
         options={{ headerTitle: 'Tune In' }}
+      />
+      <TuneInStack.Screen
+        name="QuestionListScreen"
+        component={QuestionsListScreen}
+        options={{ headerTitle: 'Questions' }}
       />
     </TuneInStack.Navigator>
   );
