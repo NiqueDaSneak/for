@@ -1,13 +1,19 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { Text, View } from '../../components/Themed';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { PlatformColor, SectionList, useColorScheme } from 'react-native';
+import { PlatformColor, Pressable, SectionList, useColorScheme } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { BlurView } from 'expo-blur';
 
-const QuestionsListScreen = () => {
+const QuestionsListScreen = ({ navigation, route }) => {
+  const {sectionTitle} = route.params
   const colorScheme = useColorScheme()
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  useEffect(() => {
+    navigation.setOptions({title: `${sectionTitle} Questions`})
+  }, [])
+
   return (
     <View
       lightColor='#f5f5f5'
@@ -88,7 +94,8 @@ const QuestionsListScreen = () => {
           <Text style={{backgroundColor: colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f5f5f5', fontWeight: 'bold', paddingLeft: '5%', marginBottom: '4%', paddingBottom: '4%'}}>{title}</Text>
         )}
         renderItem={({ item }) => (
-          <View
+          <Pressable
+            onPress={() => navigation.navigate('AnswerQuestionScreen', {questionText: item.text})}
             style={{
               borderRadius: 10, 
               padding: '6%', 
@@ -106,7 +113,7 @@ const QuestionsListScreen = () => {
               marginBottom: '5%'
             }}>
             <Text>{item.text}</Text>
-          </View>
+          </Pressable>
         )} />
     </View>
   )

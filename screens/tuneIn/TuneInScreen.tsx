@@ -10,9 +10,9 @@ export default function TabOneScreen({navigation}) {
   
   return (
     <View
-      lightColor='#F0EAD6'
-      darkColor={PlatformColor('systemGray6')}
-      style={{
+    lightColor='#f5f5f5'
+    darkColor={PlatformColor('systemGray6')}
+    style={{
       height: '100%',
       width: '100%'
     }}>
@@ -52,7 +52,7 @@ export default function TabOneScreen({navigation}) {
               shadowRadius: 1.41,
               elevation: 2,
             }]}
-            onPress={() => navigation.navigate('QuestionListScreen')}>
+            onPress={() => navigation.navigate('QuestionListScreen', {sectionTitle: item.title})}>
             <Text style={[fontTypes.subHeading, {width: '100%', fontWeight: 'normal'}]}>{item.title}</Text>
             <Image 
               resizeMode="contain"
