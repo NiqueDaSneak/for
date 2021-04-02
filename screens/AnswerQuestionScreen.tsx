@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Button, PlatformColor, Pressable, TextInput, useColorScheme } from 'react-native'
 import { Text, View } from '../components/Themed'
 import { useFonts } from '../hooks/useFonts'
 import { useKeyboard } from '../hooks/useKeyboard'
+import { DigitalThoughtsContext } from '../state/digitalthoughts.context'
 
 const AnswerQuestionScreen = ({ navigation, route }) => {
   const {fontTypes} = useFonts()
@@ -10,27 +11,29 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
 
   const { questionText } = route.params
   
-  const [questionResponse, setQuestionResponse] = useState('Respond Here...')
+  const [questionResponse, setQuestionResponse] = useState('')
   const { keyboardHeight } = useKeyboard()
   const inputRef = useRef(null)
+
+  const [dtState, dtDispatch] = useContext(DigitalThoughtsContext)
+
   useEffect(() => {
     inputRef.current.focus()
     navigation.setOptions({
       title: `Answer the question`,
       headerRight: () => (
-        // <Pressable>
-        //   <Text >+</Text>
-
-        // </Pressable>
-        <Button style={{marginRight: '4%', }} title='Save' />
+        <Button
+          onPress={() => dtDispatch({type: 'CONSUME_ANSWER', questionResponse})}
+          title='Save' />
       )
     })
-  }, [])
+  }, [questionResponse])
+
   return (
     <View
     lightColor='#f5f5f5'
     darkColor={PlatformColor('systemGray6')}
-      style={{
+    style={{
       height: '100%'
     }}>
       <View style={{
@@ -41,24 +44,22 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
       }}>
         <Text style={[fontTypes.heading, {fontWeight: 'normal', width: '90%'}]}>{questionText}</Text>
       </View>
-      {/* NEED TO SET UP KEYBOARD FOR THE BELOW */}
       <TextInput
         ref={inputRef}
         style={{
-        width: '100%', 
-        // height: '100%', 
-          // position: 'absolute',
-          // bottom: keyboardHeight,
-        // backgroundColor: 'purple', 
-        color: colorScheme === 'dark' ? PlatformColor('systemGray') : PlatformColor('systemGray6'),
-        paddingLeft: '4%', 
-        paddingBottom: '100%', 
-        fontSize: 16
-      }}
+          width: '100%', 
+          color: colorScheme === 'dark' ? PlatformColor('systemGray') : PlatformColor('systemGray6'),
+          paddingLeft: '4%', 
+          paddingBottom: '100%', 
+          fontSize: 16
+        }}
         multiline
         numberOfLines={4}
-        onFocus={() => setQuestionResponse('')}
-        onChangeText={text => setQuestionResponse(text)}
+        onChangeText={text => {
+          console.log(text)
+          setQuestionResponse(text)
+        }
+        }
         value={questionResponse}
       />
     </View>

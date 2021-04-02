@@ -7,6 +7,7 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { AuthContextProvider } from './state/auth.context';
+import { DigitalThoughtsProvider } from './state/digitalthoughts.context';
 import { ModalContextProvider } from './state/modal.context';
 
 export default function App() {
@@ -20,8 +21,10 @@ export default function App() {
       <SafeAreaProvider>
           <ModalContextProvider>
             <AuthContextProvider>
-              <Navigation colorScheme={colorScheme} />
-              <ModalConductor colorScheme={colorScheme}  />
+              <DigitalThoughtsProvider>
+                <Navigation colorScheme={colorScheme} />
+                <ModalConductor colorScheme={colorScheme}  />
+              </DigitalThoughtsProvider>
             </AuthContextProvider>
           </ModalContextProvider>
         <StatusBar />
