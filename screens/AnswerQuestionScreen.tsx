@@ -36,7 +36,9 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
     style={{
       height: '100%'
     }}>
-      <View style={{
+      <View
+        lightColor={PlatformColor('systemGray')}
+        style={{
         paddingTop: '4%',
         paddingBottom: '4%',
         justifyContent: 'center',
@@ -49,17 +51,15 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
         style={{
           width: '100%', 
           color: colorScheme === 'dark' ? PlatformColor('systemGray') : PlatformColor('systemGray6'),
-          paddingLeft: '4%', 
-          paddingBottom: '100%', 
+          paddingTop: '4%', 
+          paddingLeft: '4%',
+          paddingRight: '4%', 
+          paddingBottom: '120%', 
           fontSize: 16
         }}
         multiline
         numberOfLines={4}
-        onChangeText={text => {
-          console.log(text)
-          setQuestionResponse(text)
-        }
-        }
+        onChangeText={text => setQuestionResponse(text)}
         value={questionResponse}
       />
     </View>
