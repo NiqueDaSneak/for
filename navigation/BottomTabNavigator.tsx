@@ -11,6 +11,7 @@ import QuestionsListScreen from '../screens/tuneIn/QuestionsListScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon'
+import AnswerQuestionScreen from '../screens/AnswerQuestionScreen';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -59,7 +60,10 @@ function TuneInNavigator() {
       <TuneInStack.Screen
         name="QuestionListScreen"
         component={QuestionsListScreen}
-        options={{ headerTitle: 'Questions' }}
+      />
+      <TuneInStack.Screen
+        name="AnswerQuestionScreen"
+        component={AnswerQuestionScreen}
       />
     </TuneInStack.Navigator>
   );
