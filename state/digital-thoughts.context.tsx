@@ -5,7 +5,9 @@ import {
 } from 'react'
 
 export const DigitalThoughtsContext = createContext()
-
+// I THINK THE DIFFERENCE BETWEEN THIS AND THE ALIGN CATEGORIES
+// CONTEXT IS THIS ONE IS ABOUT PROCESSING THE ANSWERS HOWEVER 
+// THAT MAY EVOLVE
 const initialState = {
   responses: [],
   consumeResponse: {
@@ -39,7 +41,7 @@ const reducer = (state, action) => {
 }
 
 
-export const DigitalThoughtsProvider = ({ children }: { children: ReactNode;}) => {
+export const DigitalThoughtsProvider = ({ children }) => {
   
   const [state, dispatch] = useReducer(reducer, initialState)
 
@@ -48,9 +50,6 @@ export const DigitalThoughtsProvider = ({ children }: { children: ReactNode;}) =
     const processedResponse = response.split('. ').filter(Boolean)
     console.log('processedResponse: ', processedResponse)
     dispatch({ type: 'SET_RESPONSES', responses: [...state.responses, ...processedResponse] })
-    // navigate to align...?
-    // trigger alert; answer more questions or see align page
-    // if first question answered...go to align
   }
 
   useEffect(() => {
