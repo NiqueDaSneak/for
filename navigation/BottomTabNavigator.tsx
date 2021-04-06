@@ -8,10 +8,10 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import TuneInScreen from '../screens/tuneIn/TuneInScreen';
 import QuestionsListScreen from '../screens/tuneIn/QuestionsListScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
+import AlignScreen from '../screens/align/AlignScreen';
 import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon'
-import AnswerQuestionScreen from '../screens/AnswerQuestionScreen';
+import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -31,14 +31,14 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Align"
-        component={TabTwoNavigator}
+        component={AlignNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => <TabBarIcon name="align" colorScheme={colorScheme} focused={focused} />,
         }}
       />
       <BottomTab.Screen
         name="Act"
-        component={TabTwoNavigator}
+        component={AlignNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => <TabBarIcon name="act" colorScheme={colorScheme} focused={focused} />,
         }}
@@ -69,16 +69,16 @@ function TuneInNavigator() {
   );
 }
 
-const TabTwoStack = createStackNavigator();
+const AlignStack = createStackNavigator();
 
-function TabTwoNavigator() {
+function AlignNavigator() {
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <AlignStack.Navigator>
+      <AlignStack.Screen
+        name="AlignScreen"
+        component={AlignScreen}
+        options={{ headerTitle: 'Align' }}
       />
-    </TabTwoStack.Navigator>
+    </AlignStack.Navigator>
   );
 }
