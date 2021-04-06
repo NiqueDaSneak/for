@@ -2,19 +2,19 @@ import React, {useContext, useState} from 'react';
 import { FlatList, PlatformColor, Pressable, StyleSheet, useColorScheme, ScrollView } from 'react-native';
 
 import { Text, View } from '../../components/Themed';
-import { DigitalThoughtsContext } from '../../state/';
+import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
 import DraggableTextCard from '../../components/DraggableTextCard'
 import { DraxList, DraxProvider, DraxScrollView, DraxView } from 'react-native-drax';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import CategoryFooter from '../../components/CategoryFooter';
 
 export default function AlignScreen() {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext)
   const { responses } = dtState
-const [scrollStatus, setScrollStatus] = useState(true)
   const colorScheme = useColorScheme()
   
-  const {keyboardHeight} = useKeyboard()
-  console.log('scrollStatus: ', scrollStatus)
+  const { keyboardHeight } = useKeyboard()
+  
   return (
     <DraxProvider>
       <View style={{
@@ -53,7 +53,6 @@ const [scrollStatus, setScrollStatus] = useState(true)
         width: '100%',
       }}>
         <DraxList
-          scrollEnabled={scrollStatus}
           data={responses}
           contentContainerStyle={{marginTop: '10%'}}
           renderItemContent={({ item }, { viewState, hover }) => {
@@ -63,50 +62,11 @@ const [scrollStatus, setScrollStatus] = useState(true)
               />
             )
           }
-          
         }
           keyExtractor={(item, index) => `${item}`}
         /> 
       </View>
-      
-      <ScrollView
-        horizontal
-        contentContainerStyle={{padding: '2%',
-      }}
-        style={{
-          width: '100%',
-          backgroundColor: PlatformColor('systemGray6'),
-      }}>
-        {[{text: '+'}, {text: 'Health & Wellness'},{text: 'Relationships'},{text: 'Finances'}].map((element) => (
-          <DraxView
-            key={element.text}
-                 style={{
-                   width: 130,
-                   padding: 10,
-              height: 100,
-              marginRight: 10,
-              backgroundColor: PlatformColor('systemGray4'),
-              justifyContent: 'center',
-              alignItems: 'center',
-                   borderRadius: 10,
-                   
-               }}
-                 onReceiveDragEnter={({ dragged: { payload } }) => {
-                     console.log(`hello ${payload}`);
-                 }}
-                 onReceiveDragExit={({ dragged: { payload } }) => {
-                     console.log(`goodbye ${payload}`);
-                 }}
-                 onReceiveDragDrop={({ dragged: { payload } }) => {
-                   console.log(`received ${payload}`);
-                   console.log('end drag');
-                  //  setScrollStatus(true)           
-                 }}
-          >
-            <Text>{element.text}</Text>
-             </DraxView>
-        ))}
-</ScrollView>
+      <CategoryFooter />
     </DraxProvider>
   )
 }
