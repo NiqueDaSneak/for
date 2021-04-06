@@ -7,7 +7,7 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { AuthContextProvider } from './state/auth.context';
-import { DigitalThoughtsProvider } from './state/digitalthoughts.context';
+import { DigitalThoughtsProvider } from './state/digital-thoughts.context';
 import { ModalContextProvider } from './state/modal.context';
 
 export default function App() {
