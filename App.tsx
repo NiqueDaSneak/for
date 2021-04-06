@@ -20,16 +20,16 @@ export default function App() {
   } else {
     return (
       <SafeAreaProvider>
-          <ModalContextProvider>
+        <ModalContextProvider>
           <AuthContextProvider>
             <AlignCategoriesProvider>
               <DigitalThoughtsProvider>
                 <Navigation colorScheme={colorScheme} />
-                <ModalConductor colorScheme={colorScheme}  />
+                <ModalConductor colorScheme={colorScheme} />
               </DigitalThoughtsProvider>
             </AlignCategoriesProvider>
-            </AuthContextProvider>
-          </ModalContextProvider>
+          </AuthContextProvider>
+        </ModalContextProvider>
         <StatusBar />
       </SafeAreaProvider>
     );

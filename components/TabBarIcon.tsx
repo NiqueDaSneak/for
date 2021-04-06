@@ -1,6 +1,5 @@
-
 import * as React from 'react';
-import {Image} from 'react-native'
+import { Image } from 'react-native';
 import TuneInIconDark from '../assets/images/tunein-icon-dark.png';
 import TuneInIconLight from '../assets/images/tunein-icon-light.png';
 import AlignIconDark from '../assets/images/align-icon-dark.png';
@@ -8,47 +7,53 @@ import AlignIconLight from '../assets/images/align-icon-light.png';
 import ActIconDark from '../assets/images/act-icon-dark.png';
 import ActIconLight from '../assets/images/act-icon-light.png';
 
-const TabBarIcon = (props: { name: string, colorScheme: string, focused: boolean }): React.JSXElementConstructor => {
-  const {name, colorScheme, focused } = props
+const TabBarIcon = (props: {
+  name: string;
+  colorScheme: string;
+  focused: boolean;
+}): React.JSXElementConstructor => {
+  const { name, colorScheme, focused } = props;
 
   interface footerIcons {
-    [key:string]: any;
+    [key: string]: any;
     tuneIn: {
       focused: string;
       normal: string;
-    },
+    };
     align: {
       focused: string;
       normal: string;
-    },
+    };
     act: {
       focused: string;
       normal: string;
-    }
+    };
   }
-    const footerIcons = {
-      tuneIn: {
-        focused: colorScheme === 'dark' ? TuneInIconLight : TuneInIconDark,
-        normal: colorScheme === 'dark' ? TuneInIconDark : TuneInIconLight,
-      }, 
-      align:{
-        focused: colorScheme === 'dark' ? AlignIconLight : AlignIconDark,
-        normal: colorScheme === 'dark' ? AlignIconDark : AlignIconLight,
-      },
-      act: {
-        focused: colorScheme === 'dark' ? ActIconLight : ActIconDark,
-        normal: colorScheme === 'dark' ? ActIconDark : ActIconLight,
-      },
-    }
-    return <Image
-    resizeMode="contain"
-    resizeMethod="resize"
-    style={{
-      resizeMode: 'contain',
-      width: 30,
-    }}
-      source={ focused ? footerIcons[name].focused : footerIcons[name].normal }
+  const footerIcons = {
+    tuneIn: {
+      focused: colorScheme === 'dark' ? TuneInIconLight : TuneInIconDark,
+      normal: colorScheme === 'dark' ? TuneInIconDark : TuneInIconLight,
+    },
+    align: {
+      focused: colorScheme === 'dark' ? AlignIconLight : AlignIconDark,
+      normal: colorScheme === 'dark' ? AlignIconDark : AlignIconLight,
+    },
+    act: {
+      focused: colorScheme === 'dark' ? ActIconLight : ActIconDark,
+      normal: colorScheme === 'dark' ? ActIconDark : ActIconLight,
+    },
+  };
+  return (
+    <Image
+      resizeMode="contain"
+      resizeMethod="resize"
+      style={{
+        resizeMode: 'contain',
+        width: 30,
+      }}
+      source={focused ? footerIcons[name].focused : footerIcons[name].normal}
     />
-  }
-  
-export default TabBarIcon
+  );
+};
+
+export default TabBarIcon;

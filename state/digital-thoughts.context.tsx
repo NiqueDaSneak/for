@@ -1,20 +1,17 @@
-import React, { useEffect } from 'react'
-import {
-  createContext,
-  useReducer
-} from 'react'
+import React, { useEffect } from 'react';
+import { createContext, useReducer } from 'react';
 
-export const DigitalThoughtsContext = createContext()
+export const DigitalThoughtsContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE ALIGN CATEGORIES
-// CONTEXT IS THIS ONE IS ABOUT PROCESSING THE ANSWERS HOWEVER 
+// CONTEXT IS THIS ONE IS ABOUT PROCESSING THE ANSWERS HOWEVER
 // THAT MAY EVOLVE
 const initialState = {
   responses: [],
   consumeResponse: {
     value: false,
-    response: ''
-  }
-}
+    response: '',
+  },
+};
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -23,44 +20,45 @@ const reducer = (state, action) => {
         ...state,
         consumeResponse: {
           value: true,
-          response: action.questionResponse
-        }
-      }
+          response: action.questionResponse,
+        },
+      };
     case 'SET_RESPONSES':
       return {
         ...state,
         responses: action.responses,
         consumeResponse: {
           value: false,
-          response: ''
-        }
-      }
-      default:
-        throw new Error()
+          response: '',
+        },
+      };
+    default:
+      throw new Error();
   }
-}
-
+};
 
 export const DigitalThoughtsProvider = ({ children }) => {
-  
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   const processResponse = async (response: string) => {
-    console.log('response in context: ', response)
-    const processedResponse = response.split('. ').filter(Boolean)
-    console.log('processedResponse: ', processedResponse)
-    dispatch({ type: 'SET_RESPONSES', responses: [...state.responses, ...processedResponse] })
-  }
+    console.log('response in context: ', response);
+    const processedResponse = response.split('. ').filter(Boolean);
+    console.log('processedResponse: ', processedResponse);
+    dispatch({
+      type: 'SET_RESPONSES',
+      responses: [...state.responses, ...processedResponse],
+    });
+  };
 
   useEffect(() => {
     if (state.consumeResponse.value) {
-      processResponse(state.consumeResponse.response)
+      processResponse(state.consumeResponse.response);
     }
-   }, [state.consumeResponse])
-  
+  }, [state.consumeResponse]);
+
   return (
     <DigitalThoughtsContext.Provider value={[state, dispatch]}>
       {children}
     </DigitalThoughtsContext.Provider>
-  )
-}
+  );
+};

@@ -1,16 +1,15 @@
-
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
-import {Image} from 'react-native'
+import { Image } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import TuneInScreen from '../screens/tuneIn/TuneInScreen';
 import QuestionsListScreen from '../screens/tuneIn/QuestionsListScreen';
 import AlignScreen from '../screens/align/AlignScreen';
 import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
-import TabBarIcon from '../components/TabBarIcon'
+import TabBarIcon from '../components/TabBarIcon';
 import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
 import CategoryScreen from '../screens/align/CategoryScreen';
 
@@ -22,26 +21,45 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Tune In"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
+      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
+    >
       <BottomTab.Screen
         name="Tune In"
         component={TuneInNavigator}
         options={{
-          tabBarIcon: ({ color, focused }) => <TabBarIcon name="tuneIn" colorScheme={colorScheme} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="tuneIn"
+              colorScheme={colorScheme}
+              focused={focused}
+            />
+          ),
         }}
       />
       <BottomTab.Screen
         name="Align"
         component={AlignNavigator}
         options={{
-          tabBarIcon: ({ color, focused }) => <TabBarIcon name="align" colorScheme={colorScheme} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="align"
+              colorScheme={colorScheme}
+              focused={focused}
+            />
+          ),
         }}
       />
       <BottomTab.Screen
         name="Act"
         component={AlignNavigator}
         options={{
-          tabBarIcon: ({ color, focused }) => <TabBarIcon name="act" colorScheme={colorScheme} focused={focused} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="act"
+              colorScheme={colorScheme}
+              focused={focused}
+            />
+          ),
         }}
       />
     </BottomTab.Navigator>
@@ -80,12 +98,7 @@ function AlignNavigator() {
         component={AlignScreen}
         options={{ headerTitle: 'Align' }}
       />
-      <AlignStack.Screen
-        name="CategoryScreen"
-        component={CategoryScreen}
-        // options={{ headerTitle: 'Align' }}
-      />
-
+      <AlignStack.Screen name="CategoryScreen" component={CategoryScreen} />
     </AlignStack.Navigator>
   );
 }

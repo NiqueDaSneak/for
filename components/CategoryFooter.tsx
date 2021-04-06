@@ -23,14 +23,28 @@ const CategoryFooter = () => {
   const { categories } = acState;
 
   const navigation = useNavigation();
+
+  const styles = StyleSheet.create({
+    container: {
+      width: '100%',
+      backgroundColor: PlatformColor('systemGray6'),
+    },
+    categoriesContainer: {
+      width: 130,
+      padding: 10,
+      height: 100,
+      marginRight: 10,
+      backgroundColor: PlatformColor('systemGray4'),
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 10,
+    }
+  })
   return (
     <ScrollView
       horizontal
       contentContainerStyle={{ padding: '2%' }}
-      style={{
-        width: '100%',
-        backgroundColor: PlatformColor('systemGray6'),
-      }}
+      style={styles.container}
     >
       {/* BELOW ARE THE ALIGN-CATEGORIES, PRECREATED BUT CAN ADD CUSTOM */}
       {[{ title: '+' }, ...categories].map((category, index) => (
@@ -61,16 +75,7 @@ const CategoryFooter = () => {
           }}
         >
           <DraxView
-            style={{
-              width: 130,
-              padding: 10,
-              height: 100,
-              marginRight: 10,
-              backgroundColor: PlatformColor('systemGray4'),
-              justifyContent: 'center',
-              alignItems: 'center',
-              borderRadius: 10,
-            }}
+            style={styles.categoriesContainer}
             onReceiveDragEnter={({ dragged: { payload } }) => {
               console.log(`hello ${payload}`);
             }}
@@ -81,8 +86,6 @@ const CategoryFooter = () => {
               console.log(`received ${payload}`);
               console.log('end drag');
               // add text object to category??
-
-              //  setScrollStatus(true)
             }}
           >
             <Text>{category.title}</Text>
