@@ -34,7 +34,7 @@ export default function TabOneScreen({navigation}) {
             image: require('../../assets/images/relationships.png')
           },
           {
-            title: 'Financial',
+            title: 'Finances',
             image: require('../../assets/images/financial.png')
           },
         ]}
