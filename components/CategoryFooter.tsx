@@ -1,13 +1,15 @@
 import React, {useContext, useState} from 'react';
-import { FlatList, PlatformColor, Pressable, StyleSheet, useColorScheme, ScrollView } from 'react-native';
+import { FlatList, PlatformColor, Pressable, StyleSheet, useColorScheme, ScrollView, Alert } from 'react-native';
 import { DraxList, DraxProvider, DraxScrollView, DraxView } from 'react-native-drax';
 import { AlignCategoriesContext } from '../state'
 import { Text, View } from '../components/Themed';
+import { useNavigation } from '@react-navigation/core';
 
 const CategoryFooter = () => {
   const [acState, acDispatch]  = useContext(AlignCategoriesContext)
   const { categories } = acState
 
+  const navigation = useNavigation()
   return (
 <ScrollView
 horizontal
@@ -19,8 +21,18 @@ style={{
 }}>
 {/* BELOW ARE THE ALIGN-CATEGORIES, PRECREATED BUT CAN ADD CUSTOM */}
       {[{ title: '+' }, ...categories].map((category, index) => (
-        <Pressable onPress={() =>
-          index === 0 ? console.log(`create new category`) : console.log(`go to category ${category.title}`)
+        <Pressable onPress={() => {
+          const getCategoryName = () => {
+            return Alert.prompt('Give your new category a name:','Here is some secondary text.', [{text: 'Cancel', style: 'destructive'}, {text: 'Save', onPress: (text) => console.log(`save category ${text}`)}])
+          }
+
+          const navigateToCategory = () => {
+            navigation.navigate('CategoryScreen', {routeTitle: category.title})
+            return console.log(`go to category ${category.title}`)
+          }
+          index === 0 ? getCategoryName() : navigateToCategory()
+          
+          }
         }>
   <DraxView
     key={category.title}

@@ -12,6 +12,7 @@ import AlignScreen from '../screens/align/AlignScreen';
 import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon'
 import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
+import CategoryScreen from '../screens/align/CategoryScreen';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -79,6 +80,12 @@ function AlignNavigator() {
         component={AlignScreen}
         options={{ headerTitle: 'Align' }}
       />
+      <AlignStack.Screen
+        name="CategoryScreen"
+        component={CategoryScreen}
+        // options={{ headerTitle: 'Align' }}
+      />
+
     </AlignStack.Navigator>
   );
 }
