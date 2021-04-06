@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef, useContext } from 'react'
 import { Button, PlatformColor, Pressable, TextInput, useColorScheme } from 'react-native'
-import { Text, View } from '../components/Themed'
-import { useFonts } from '../hooks/useFonts'
-import { useKeyboard } from '../hooks/useKeyboard'
-import { DigitalThoughtsContext } from '../state/digitalthoughts.context'
+import { Text, View } from '../../components/Themed'
+import { useFonts } from '../../hooks/useFonts'
+import { useKeyboard } from '../../hooks/useKeyboard'
+import { DigitalThoughtsContext } from '../../state/digital-thoughts.context'
 
 const AnswerQuestionScreen = ({ navigation, route }) => {
   const {fontTypes} = useFonts()
@@ -17,13 +17,22 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
 
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext)
 
+  const handleSave = () => {
+    if (questionResponse.length > 14) {
+      
+    }
+      dtDispatch({ type: 'CONSUME_ANSWER', questionResponse })
+      navigation.navigate('Align')
+  }
+
   useEffect(() => {
     inputRef.current.focus()
     navigation.setOptions({
       title: `Answer the question`,
       headerRight: () => (
         <Button
-          onPress={() => dtDispatch({type: 'CONSUME_ANSWER', questionResponse})}
+          disabled={questionResponse.length < 14}
+          onPress={() => handleSave()}
           title='Save' />
       )
     })
@@ -50,7 +59,7 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
         ref={inputRef}
         style={{
           width: '100%', 
-          color: colorScheme === 'dark' ? PlatformColor('systemGray') : PlatformColor('systemGray6'),
+          color: PlatformColor('systemGray'),
           paddingTop: '4%', 
           paddingLeft: '4%',
           paddingRight: '4%', 
