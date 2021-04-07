@@ -38,8 +38,8 @@ const CategoryFooter = () => {
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
-    }
-  })
+    },
+  });
   return (
     <ScrollView
       horizontal
@@ -86,6 +86,13 @@ const CategoryFooter = () => {
               console.log(`received ${payload}`);
               console.log('end drag');
               // add text object to category??
+              acDispatch({
+                type: 'ADD_TO_CATEGORY',
+                data: {
+                  categoryTitle: category.title,
+                  data: payload
+                },
+              });
             }}
           >
             <Text>{category.title}</Text>

@@ -8,17 +8,34 @@ export const AlignCategoriesContext = createContext();
 
 const initialState = {
   categories: [
-    { title: 'Health & Wellness' },
-    { title: 'Relationships' },
-    { title: 'Finances' },
+    {
+      title: 'Health & Wellness',
+      thoughts: []
+    },
+    {
+      title: 'Relationships',
+      thoughts: []
+    },
+    {
+      title: 'Finances',
+      thoughts: []
+    },
   ],
+  addToCategory: {
+    value: false,
+    data: {},
+  },
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case '_':
+    case 'ADD_TO_CATEGORY':
       return {
         ...state,
+        addToCategory: {
+          value: true,
+          data: action.data,
+        },
       };
     default:
       throw new Error();
@@ -27,6 +44,14 @@ const reducer = (state, action) => {
 
 export const AlignCategoriesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    if (state.addToCategory.value) {
+      // do stuff
+      console.log('data to be categorized: ', state.addToCategory.data)
+    }
+  }, [state.addToCategory])
+
   return (
     <AlignCategoriesContext.Provider value={[state, dispatch]}>
       {children}

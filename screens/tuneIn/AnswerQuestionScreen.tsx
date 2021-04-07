@@ -26,7 +26,13 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
 
   const handleSave = () => {
     dtDispatch({ type: 'CONSUME_ANSWER', questionResponse });
-    navigation.navigate('Align');
+    // INSTEAD OF NAVIGATING TO ALIGN PAGE...NAVIGATE BACK TO THE 
+    // QUESTION LIST SCREEN, BUT UPDATE THE FOOTER ICON FOR ALIGN
+    // WITH A READ CIRCLE TO SHOW THERE IS A PLACE TO CLICK?
+    
+    // navigation.navigate('Align');
+    navigation.goBack()
+    setQuestionResponse('')
   };
 
   useEffect(() => {
