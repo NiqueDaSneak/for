@@ -35,17 +35,17 @@ const TabBarIcon = (props: {
 
   const hasAlert = () => {
     if (alerted) {
-      return colorScheme === 'dark' ? AlignIconDarkAlert : AlignIconLightAlert
+      return colorScheme === 'dark' ? AlignIconDarkAlert : AlignIconLightAlert;
     } else {
-      return colorScheme === 'dark' ? AlignIconDark : AlignIconLight
+      return colorScheme === 'dark' ? AlignIconDark : AlignIconLight;
     }
-  }
+  };
 
   const footerIcons = {
     tuneIn: {
       focused: colorScheme === 'dark' ? TuneInIconLight : TuneInIconDark,
       normal: colorScheme === 'dark' ? TuneInIconDark : TuneInIconLight,
-    }, 
+    },
     align: {
       focused: colorScheme === 'dark' ? AlignIconLight : AlignIconDark,
       normal: hasAlert(),

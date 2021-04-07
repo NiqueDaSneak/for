@@ -65,9 +65,9 @@ export default function AlignScreen() {
 
   useEffect(() => {
     if (newResponses) {
-      dtDispatch({type: 'NEW_SEEN'})
+      dtDispatch({ type: 'NEW_SEEN' });
     }
-  }, [])
+  }, []);
 
   return (
     <DraxProvider>

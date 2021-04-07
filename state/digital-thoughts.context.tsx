@@ -11,7 +11,7 @@ const initialState = {
     value: false,
     response: '',
   },
-  newResponses: false
+  newResponses: false,
 };
 
 const reducer = (state, action) => {
@@ -38,7 +38,7 @@ const reducer = (state, action) => {
       return {
         ...state,
         newResponses: false,
-      }
+      };
     default:
       throw new Error();
   }

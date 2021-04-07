@@ -10,15 +10,15 @@ const initialState = {
   categories: [
     {
       title: 'Health & Wellness',
-      thoughts: []
+      thoughts: [],
     },
     {
       title: 'Relationships',
-      thoughts: []
+      thoughts: [],
     },
     {
       title: 'Finances',
-      thoughts: []
+      thoughts: [],
     },
   ],
   addToCategory: {
@@ -48,9 +48,9 @@ export const AlignCategoriesProvider = ({ children }) => {
   useEffect(() => {
     if (state.addToCategory.value) {
       // do stuff
-      console.log('data to be categorized: ', state.addToCategory.data)
+      console.log('data to be categorized: ', state.addToCategory.data);
     }
-  }, [state.addToCategory])
+  }, [state.addToCategory]);
 
   return (
     <AlignCategoriesContext.Provider value={[state, dispatch]}>

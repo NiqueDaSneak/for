@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import { Image } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -19,7 +19,7 @@ const BottomTab = createBottomTabNavigator();
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
-  const {newResponses} = dtState
+  const { newResponses } = dtState;
 
   return (
     <BottomTab.Navigator
