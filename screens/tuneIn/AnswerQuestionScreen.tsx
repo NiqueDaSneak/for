@@ -35,9 +35,9 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
 
     let answeredQuestionData = {
       ...questionData,
-      answeredFrom: answeredFrom
-    }
-    qDispatch({type: 'ANSWERED', answeredQuestionData})
+      answeredFrom: answeredFrom,
+    };
+    qDispatch({ type: 'ANSWERED', answeredQuestionData });
     navigation.goBack();
     setQuestionResponse('');
   };
