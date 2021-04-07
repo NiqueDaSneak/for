@@ -10,6 +10,7 @@ import { AlignCategoriesProvider } from './state/align-categories.context';
 import { AuthContextProvider } from './state/auth.context';
 import { DigitalThoughtsProvider } from './state/digital-thoughts.context';
 import { ModalContextProvider } from './state/modal.context';
+import { QuestionsProvider } from './state/questions.context';
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -23,10 +24,12 @@ export default function App() {
         <ModalContextProvider>
           <AuthContextProvider>
             <AlignCategoriesProvider>
-              <DigitalThoughtsProvider>
-                <Navigation colorScheme={colorScheme} />
-                <ModalConductor colorScheme={colorScheme} />
-              </DigitalThoughtsProvider>
+              <QuestionsProvider>
+                <DigitalThoughtsProvider>
+                  <Navigation colorScheme={colorScheme} />
+                  <ModalConductor colorScheme={colorScheme} />
+                </DigitalThoughtsProvider>
+              </QuestionsProvider>
             </AlignCategoriesProvider>
           </AuthContextProvider>
         </ModalContextProvider>

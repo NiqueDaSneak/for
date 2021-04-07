@@ -11,26 +11,33 @@ import { Text, View } from '../../components/Themed';
 import { useFonts } from '../../hooks/useFonts';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { DigitalThoughtsContext } from '../../state/digital-thoughts.context';
+import { QuestionsContext } from '../../state/questions.context';
 
 const AnswerQuestionScreen = ({ navigation, route }) => {
   const { fontTypes } = useFonts();
   const colorScheme = useColorScheme();
 
-  const { questionText } = route.params;
+  const { questionData, answeredFrom } = route.params;
 
   const [questionResponse, setQuestionResponse] = useState('');
   const { keyboardHeight } = useKeyboard();
   const inputRef = useRef(null);
 
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
+  const [qState, qDispatch] = useContext(QuestionsContext);
 
   const handleSave = () => {
     dtDispatch({ type: 'CONSUME_ANSWER', questionResponse });
+
     // INSTEAD OF NAVIGATING TO ALIGN PAGE...NAVIGATE BACK TO THE
     // QUESTION LIST SCREEN, BUT UPDATE THE FOOTER ICON FOR ALIGN
     // WITH A READ CIRCLE TO SHOW THERE IS A PLACE TO CLICK?
 
-    // navigation.navigate('Align');
+    let answeredQuestionData = {
+      ...questionData,
+      answeredFrom: answeredFrom
+    }
+    qDispatch({type: 'ANSWERED', answeredQuestionData})
     navigation.goBack();
     setQuestionResponse('');
   };
@@ -85,7 +92,7 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
         style={styles.questionContainer}
       >
         <Text style={[fontTypes.heading, styles.questionText]}>
-          {questionText}
+          {questionData.text}
         </Text>
       </View>
       <TextInput

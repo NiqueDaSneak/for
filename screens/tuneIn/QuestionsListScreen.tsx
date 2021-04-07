@@ -1,82 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Text, View } from '../../components/Themed';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import {
   PlatformColor,
-  Pressable,
   SectionList,
   StyleSheet,
   useColorScheme,
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { BlurView } from 'expo-blur';
 import PressableTextCard from '../../components/PressableTextCard';
+import { QuestionsContext } from '../../state/questions.context';
 
 const QuestionsListScreen = ({ navigation, route }) => {
   const { sectionTitle } = route.params;
   const colorScheme = useColorScheme();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  const [qState, qDispatch] = useContext(QuestionsContext);
+  const { baseQuestions, answeredQuestions } = qState;
+
   useEffect(() => {
     navigation.setOptions({ title: `${sectionTitle} Questions` });
   }, []);
-
-  const questionSectionData = [
-    {
-      title: 'Intentions for change:',
-      data: [
-        {
-          text: 'What do you intend to do?',
-        },
-        {
-          text: 'What do you think you might be able to do?',
-        },
-      ],
-    },
-    {
-      title: 'Disadvantages of the status quo:',
-      data: [
-        {
-          text: 'What concerns you about your current situation?',
-        },
-        {
-          text: 'What do you think might happen if you do not change?',
-        },
-      ],
-    },
-    {
-      title: 'Expressing optimism:',
-      data: [
-        {
-          text: 'How confident are you that you can make this change?',
-        },
-        {
-          text: 'What kind of support would be helpful in making this change?',
-        },
-        {
-          text: 'What kind of support would be helpful in making this change?',
-        },
-      ],
-    },
-    {
-      title: 'Advantages of change:',
-      data: [
-        {
-          text:
-            'If you could wake up tomorrow and things changed by magic, how would things be better for you?',
-        },
-      ],
-    },
-    {
-      title: 'Scaling:',
-      data: [
-        {
-          text:
-            'What do you think might help become more confident in making a change?',
-        },
-      ],
-    },
-  ];
 
   const styles = StyleSheet.create({
     pageContainer: {
@@ -114,23 +59,43 @@ const QuestionsListScreen = ({ navigation, route }) => {
           setSelectedIndex(event.nativeEvent.selectedSegmentIndex);
         }}
       />
-      <SectionList
-        keyExtractor={(item, index) => item + index}
-        sections={questionSectionData}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text style={styles.sectionHeader}>{title}</Text>
-        )}
-        renderItem={({ item }) => (
-          <PressableTextCard
-            text={item.text}
-            onPress={() =>
-              navigation.navigate('AnswerQuestionScreen', {
-                questionText: item.text,
-              })
-            }
-          />
-        )}
-      />
+      {selectedIndex === 0 ? (
+        <SectionList
+          keyExtractor={(item, index) => item + index}
+          sections={baseQuestions}
+          renderSectionHeader={({ section: { title } }) => (
+            <Text style={styles.sectionHeader}>{title}</Text>
+          )}
+          renderItem={({ item }) => (
+            <PressableTextCard
+              text={item.text}
+              onPress={() =>
+                navigation.navigate('AnswerQuestionScreen', {
+                  questionData: item,
+                  answeredFrom: sectionTitle,
+                })
+              }
+            />
+          )}
+        />
+      ) : (
+        <FlatList
+          data={answeredQuestions.filter(
+            (question) => question.answeredFrom === sectionTitle
+          )}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <PressableTextCard
+              text={item.text}
+              onPress={() =>
+                navigation.navigate('AnswerQuestionScreen', {
+                  questionData: item,
+                })
+              }
+            />
+          )}
+        />
+      )}
     </View>
   );
 };
