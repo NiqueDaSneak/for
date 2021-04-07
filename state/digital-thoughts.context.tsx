@@ -11,6 +11,7 @@ const initialState = {
     value: false,
     response: '',
   },
+  newResponses: false
 };
 
 const reducer = (state, action) => {
@@ -18,6 +19,7 @@ const reducer = (state, action) => {
     case 'CONSUME_ANSWER':
       return {
         ...state,
+        newResponses: true,
         consumeResponse: {
           value: true,
           response: action.questionResponse,
@@ -32,6 +34,11 @@ const reducer = (state, action) => {
           response: '',
         },
       };
+    case 'NEW_SEEN':
+      return {
+        ...state,
+        newResponses: false,
+      }
     default:
       throw new Error();
   }

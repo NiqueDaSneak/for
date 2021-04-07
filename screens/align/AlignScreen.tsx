@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   FlatList,
   PlatformColor,
@@ -22,7 +22,7 @@ import CategoryFooter from '../../components/CategoryFooter';
 
 export default function AlignScreen() {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
-  const { responses } = dtState;
+  const { responses, newResponses } = dtState;
   const colorScheme = useColorScheme();
 
   const { keyboardHeight } = useKeyboard();
@@ -62,6 +62,12 @@ export default function AlignScreen() {
       marginTop: '10%',
     },
   });
+
+  useEffect(() => {
+    if (newResponses) {
+      dtDispatch({type: 'NEW_SEEN'})
+    }
+  }, [])
 
   return (
     <DraxProvider>

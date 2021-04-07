@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as React from 'react';
+import React, {useContext} from 'react';
 import { Image } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -12,11 +12,14 @@ import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
 import TabBarIcon from '../components/TabBarIcon';
 import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
 import CategoryScreen from '../screens/align/CategoryScreen';
+import { DigitalThoughtsContext } from '../state';
 
 const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
+  const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
+  const {newResponses} = dtState
 
   return (
     <BottomTab.Navigator
@@ -45,6 +48,7 @@ export default function BottomTabNavigator() {
               name="align"
               colorScheme={colorScheme}
               focused={focused}
+              alerted={newResponses}
             />
           ),
         }}
