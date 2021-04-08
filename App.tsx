@@ -23,14 +23,14 @@ export default function App() {
       <SafeAreaProvider>
         <ModalContextProvider>
           <AuthContextProvider>
-            <AlignCategoriesProvider>
-              <QuestionsProvider>
-                <DigitalThoughtsProvider>
+            <DigitalThoughtsProvider>
+              <AlignCategoriesProvider>
+                <QuestionsProvider>
                   <Navigation colorScheme={colorScheme} />
                   <ModalConductor colorScheme={colorScheme} />
-                </DigitalThoughtsProvider>
-              </QuestionsProvider>
-            </AlignCategoriesProvider>
+                </QuestionsProvider>
+              </AlignCategoriesProvider>
+            </DigitalThoughtsProvider>
           </AuthContextProvider>
         </ModalContextProvider>
         <StatusBar />
