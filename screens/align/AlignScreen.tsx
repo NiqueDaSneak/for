@@ -10,7 +10,7 @@ import {
 
 import { Text, View } from '../../components/Themed';
 import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
-import DraggableTextCard from '../../components/DraggableTextCard';
+import TextCard from '../../components/TextCard';
 import {
   DraxList,
   DraxProvider,
@@ -27,9 +27,12 @@ export default function AlignScreen() {
 
   const { keyboardHeight } = useKeyboard();
 
+  const [isCategorizeActive, setIsCategorizeActive] = useState(false);
+
+  const [activeCategory, setActiveCategory] = useState('');
   const styles = StyleSheet.create({
-    pageContainer: {
-      height: '15%',
+    createThoughtButtonContainer: {
+      height: '12%',
       width: '100%',
       backgroundColor:
         colorScheme === 'dark'
@@ -55,11 +58,14 @@ export default function AlignScreen() {
       marginBottom: '5%',
     },
     mainContainer: {
-      height: '70%',
+      height: '76%',
       width: '100%',
+      backgroundColor:
+        colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f8fbf8',
     },
     responsesContentContainer: {
       marginTop: '10%',
+      paddingBottom: '10%',
     },
   });
 
@@ -70,30 +76,31 @@ export default function AlignScreen() {
   }, []);
 
   return (
-    <DraxProvider>
-      <View style={styles.pageContainer}>
-        <Pressable
-          onPress={() => console.log('create thought')}
-          style={styles.createThought}
-        >
-          <Text>+ Create Thought</Text>
-        </Pressable>
-      </View>
+    <>
       <View
         lightColor="#f5f5f5"
         darkColor={PlatformColor('systemGray6')}
         style={styles.mainContainer}
       >
-        <DraxList
+        <FlatList
           data={responses}
           contentContainerStyle={styles.responsesContentContainer}
-          renderItemContent={({ item }, { viewState, hover }) => {
-            return <DraggableTextCard text={item} />;
+          renderItem={({ item, index }) => {
+            return (
+              <TextCard
+                activeCategory={activeCategory}
+                isCategorizeActive={isCategorizeActive}
+                text={item}
+              />
+            );
           }}
           keyExtractor={(item, index) => `${item}`}
         />
       </View>
-      <CategoryFooter />
-    </DraxProvider>
+      <CategoryFooter
+        setActiveCategory={(category) => setActiveCategory(category)}
+        isCategorizeActive={(val) => setIsCategorizeActive(val)}
+      />
+    </>
   );
 }

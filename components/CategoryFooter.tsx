@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   FlatList,
   PlatformColor,
@@ -7,6 +7,8 @@ import {
   useColorScheme,
   ScrollView,
   Alert,
+  Switch,
+  Image,
 } from 'react-native';
 import {
   DraxList,
@@ -17,89 +19,199 @@ import {
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/core';
+import { useFonts } from '../hooks/useFonts';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
-const CategoryFooter = () => {
+const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
+
   const { categories } = acState;
 
   const navigation = useNavigation();
 
+  const { fontTypes } = useFonts();
+
+  const [controlIndex, setControlIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const colorScheme = useColorScheme();
+  useEffect(() => {
+    setActiveCategory(categories[selectedIndex]);
+  }, [selectedIndex]);
+
   const styles = StyleSheet.create({
+    confirmText: {
+      fontSize: 30,
+      marginRight: 10,
+    },
+    activeText: {
+      color: colorScheme === 'dark' ? 'white' : PlatformColor('systemGray6'),
+    },
+    activeCategory: {
+      backgroundColor: PlatformColor('systemGreen'),
+    },
     container: {
+      height: '24%',
+    },
+    scrollView: {
       width: '100%',
-      backgroundColor: PlatformColor('systemGray6'),
     },
     categoriesContainer: {
-      width: 130,
+      width: 100,
+      height: '80%',
       padding: 10,
-      height: 100,
       marginRight: 10,
+      marginLeft: 10,
       backgroundColor: PlatformColor('systemGray4'),
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
+      flexDirection: 'row',
+    },
+    text: {
+      fontSize: 12,
+    },
+    segmentedControl: {
+      width: '90%',
+      marginLeft: '5%',
+    },
+    segmentedControlContainer: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: '40%',
+    },
+    categoryComponents: {
+      height: '60%',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    scrollContentContainer: {
+      alignItems: 'center',
+      marginLeft: 10,
+      paddingRight: 10,
     },
   });
-  return (
-    <ScrollView
-      horizontal
-      contentContainerStyle={{ padding: '2%' }}
-      style={styles.container}
-    >
-      {/* BELOW ARE THE ALIGN-CATEGORIES, PRECREATED BUT CAN ADD CUSTOM */}
-      {[{ title: '+' }, ...categories].map((category, index) => (
-        <Pressable
-          key={category.title}
-          onPress={() => {
-            const getCategoryName = () => {
-              return Alert.prompt(
-                'Give your new category a name:',
-                'Here is some secondary text.',
-                [
-                  { text: 'Cancel', style: 'destructive' },
-                  {
-                    text: 'Save',
-                    onPress: (text) => console.log(`save category ${text}`),
-                  },
-                ]
-              );
-            };
 
-            const navigateToCategory = () => {
-              navigation.navigate('CategoryScreen', {
-                routeTitle: category.title,
-              });
-              return console.log(`go to category ${category.title}`);
-            };
-            index === 0 ? getCategoryName() : navigateToCategory();
+  return (
+    <View style={styles.container}>
+      <View
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
+        style={styles.segmentedControlContainer}
+      >
+        <SegmentedControl
+          style={styles.segmentedControl}
+          backgroundColor={PlatformColor('systemGray6')}
+          values={['View Only', 'Categorize']}
+          selectedIndex={controlIndex}
+          onChange={(event) => {
+            console.log('selectedIndex: ', controlIndex);
+            setControlIndex(event.nativeEvent.selectedSegmentIndex);
+            isCategorizeActive(controlIndex === 0);
+          }}
+        />
+      </View>
+      <View
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
+        style={styles.categoryComponents}
+      >
+        <Pressable
+          onPress={() => {
+            Alert.prompt(
+              'Give your new category a name:',
+              'Here is some secondary text.',
+              [
+                { text: 'Cancel', style: 'destructive' },
+                {
+                  text: 'Save',
+                  onPress: (text) => acDispatch({ type: 'NEW_CATEGORY', text }),
+                },
+              ]
+            );
           }}
         >
-          <DraxView
-            style={styles.categoriesContainer}
-            onReceiveDragEnter={({ dragged: { payload } }) => {
-              console.log(`hello ${payload}`);
-            }}
-            onReceiveDragExit={({ dragged: { payload } }) => {
-              console.log(`goodbye ${payload}`);
-            }}
-            onReceiveDragDrop={({ dragged: { payload } }) => {
-              console.log(`received ${payload}`);
-              console.log('end drag');
-              // add text object to category??
-              acDispatch({
-                type: 'ADD_TO_CATEGORY',
-                data: {
-                  categoryTitle: category.title,
-                  data: payload
-                },
-              });
-            }}
-          >
-            <Text>{category.title}</Text>
-          </DraxView>
+          <View style={styles.categoriesContainer}>
+            <Text style={styles.text}>+</Text>
+          </View>
         </Pressable>
-      ))}
-    </ScrollView>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.scrollContentContainer}
+          style={styles.scrollView}
+        >
+          {categories.map((category, index) => (
+            <React.Fragment key={index}>
+              {controlIndex === 0 && (
+                <Pressable
+                  onPress={() => {
+                    return navigation.navigate('CategoryScreen', {
+                      routeTitle: category.title,
+                    });
+                  }}
+                >
+                  <View style={styles.categoriesContainer}>
+                    <Text style={styles.text}>{category.title}</Text>
+                  </View>
+                </Pressable>
+              )}
+              {controlIndex === 1 && (
+                <Pressable
+                  onPress={() => {
+                    setSelectedIndex(index);
+                  }}
+                >
+                  {selectedIndex === index ? (
+                    <View
+                      style={[
+                        styles.categoriesContainer,
+                        selectedIndex === index ? styles.activeCategory : null,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.text,
+                          styles.activeText,
+                          acState.stage.thoughts.length > 0
+                            ? styles.confirmText
+                            : null,
+                        ]}
+                      >
+                        {acState.stage.thoughts.length === 0
+                          ? category.title
+                          : `+${acState.stage.thoughts.length}`}
+                      </Text>
+                      {acState.stage.thoughts.length > 0 && (
+                        <Image
+                          resizeMode="contain"
+                          resizeMethod="resize"
+                          style={{
+                            width: 22,
+                            height: 22,
+                          }}
+                          source={require('../assets/images/white-check.png')}
+                        />
+                      )}
+                    </View>
+                  ) : (
+                    <View
+                      style={[
+                        styles.categoriesContainer,
+                        selectedIndex === index ? styles.activeCategory : null,
+                      ]}
+                    >
+                      <Text style={styles.text}>{category.title}</Text>
+                    </View>
+                  )}
+                </Pressable>
+              )}
+            </React.Fragment>
+          ))}
+        </ScrollView>
+      </View>
+    </View>
   );
 };
 
