@@ -9,6 +9,8 @@ import {
   Alert,
   Switch,
   Image,
+  View as ContainerView,
+  Animated
 } from 'react-native';
 import {
   DraxList,
@@ -21,8 +23,12 @@ import { Text, View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/core';
 import { useFonts } from '../hooks/useFonts';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import * as Haptics from 'expo-haptics';
 
-const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
+type Props = {
+  isCategorizeActive: (val: boolean) => void;
+}
+const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
 
   const { categories } = acState;
@@ -33,12 +39,31 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
 
   const [controlIndex, setControlIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
-
+  const [confirming, setConfirming] = useState(false)
+  const [confirmed, setConfirmed] = useState(false)
   const colorScheme = useColorScheme();
+
   useEffect(() => {
-    setActiveCategory(categories[selectedIndex]);
+    if (confirmed) {
+      setTimeout(() => {
+        setConfirmed(false)
+      }, 900)
+    }
+  }, [confirmed])
+  useEffect(() => {
+    acDispatch({type: 'SET_ACTIVE_CATEGORY', category: categories[selectedIndex].title})
   }, [selectedIndex]);
 
+  const [animation, setAnimation] = useState(new Animated.Value(0))
+
+  const colorsInterpolation =  animation.interpolate({
+    inputRange: [0, 1],
+    outputRange:['#FF3B30','#34C759']
+  })
+const animatedStyle = {
+    backgroundColor: colorsInterpolation
+  }
+  
   const styles = StyleSheet.create({
     confirmText: {
       fontSize: 30,
@@ -48,7 +73,7 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
       color: colorScheme === 'dark' ? 'white' : PlatformColor('systemGray6'),
     },
     activeCategory: {
-      backgroundColor: PlatformColor('systemGreen'),
+      backgroundColor: confirming && acState.stage.thoughts.length > 0 ? PlatformColor('systemRed') : PlatformColor('systemGreen'),
     },
     container: {
       height: '24%',
@@ -58,7 +83,7 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
     },
     categoriesContainer: {
       width: 100,
-      height: '80%',
+      minHeight: 75,
       padding: 10,
       marginRight: 10,
       marginLeft: 10,
@@ -79,15 +104,16 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
       width: '100%',
       flexDirection: 'row',
       alignItems: 'center',
-      height: '40%',
+      height: '30%',
     },
     categoryComponents: {
-      height: '60%',
+      height: '70%',
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
     },
     scrollContentContainer: {
+      justifyContent: 'flex-start',
       alignItems: 'center',
       marginLeft: 10,
       paddingRight: 10,
@@ -97,25 +123,27 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
   return (
     <View style={styles.container}>
       <View
-        darkColor={PlatformColor('systemGray5')}
-        lightColor={PlatformColor('systemGray6')}
+        darkColor={PlatformColor('systemGray5').toString()}
+        lightColor={PlatformColor('systemGray6').toString()}
         style={styles.segmentedControlContainer}
       >
         <SegmentedControl
           style={styles.segmentedControl}
-          backgroundColor={PlatformColor('systemGray6')}
+          backgroundColor={PlatformColor('systemGray6').toString()}
           values={['View Only', 'Categorize']}
           selectedIndex={controlIndex}
           onChange={(event) => {
-            console.log('selectedIndex: ', controlIndex);
+            if (acState.stage.activeCategory === '') {
+              acDispatch({type: 'SET_ACTIVE_CATEGORY', category: categories[selectedIndex].title})
+            }
             setControlIndex(event.nativeEvent.selectedSegmentIndex);
             isCategorizeActive(controlIndex === 0);
           }}
         />
       </View>
       <View
-        darkColor={PlatformColor('systemGray5')}
-        lightColor={PlatformColor('systemGray6')}
+        darkColor={PlatformColor('systemGray5').toString()}
+        lightColor={PlatformColor('systemGray6').toString()}
         style={styles.categoryComponents}
       >
         <Pressable
@@ -142,7 +170,7 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
           contentContainerStyle={styles.scrollContentContainer}
           style={styles.scrollView}
         >
-          {categories.map((category, index) => (
+          {categories.map((category: { title: string;}, index: number) => (
             <React.Fragment key={index}>
               {controlIndex === 0 && (
                 <Pressable
@@ -159,17 +187,55 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
               )}
               {controlIndex === 1 && (
                 <Pressable
+                  delayLongPress={900}
+                  onLongPress={() => {
+                    if (selectedIndex === index && acState.stage.thoughts.length > 0) {
+                      console.log('long press')
+                      console.log('stuff needs to happen')
+                      setConfirmed(true)
+                      acDispatch({type: 'SUBMIT_STAGE'})
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                    }
+                  }}
+                  onPressIn={() => {
+                    if (selectedIndex === index) {
+                      console.log('press in');
+                      setConfirming(true)
+                      Animated.timing(animation, {
+                        toValue: 1,
+                        duration: 900,
+                        useNativeDriver: false
+                      }).start()
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+                    }
+                  }}
+                  onPressOut={() => {
+                    if (selectedIndex === index) {
+                      setConfirming(false)
+                      Animated.timing(animation, {
+                          toValue: 0,
+                          duration: 900,
+                          useNativeDriver: false
+                        }).reset()
+                    }
+                  }}
                   onPress={() => {
-                    setSelectedIndex(index);
+                    if (acState.stage.thoughts.length >= 0 && selectedIndex !== index) {
+                      setSelectedIndex(index)
+                     }
                   }}
                 >
                   {selectedIndex === index ? (
-                    <View
+                    <ContainerView style={{ flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', height: '100%',}}>
+                    <Animated.View
                       style={[
                         styles.categoriesContainer,
                         selectedIndex === index ? styles.activeCategory : null,
+                        confirming && acState.stage.thoughts.length > 0 ? {...animatedStyle} : null
                       ]}
                     >
+                        {!confirmed && (
                       <Text
                         style={[
                           styles.text,
@@ -177,13 +243,15 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
                           acState.stage.thoughts.length > 0
                             ? styles.confirmText
                             : null,
+                          confirming ? {fontSize: 40} : null
                         ]}
                       >
-                        {acState.stage.thoughts.length === 0
+                        {acState.stage.thoughts.length === 0 && !confirming
                           ? category.title
                           : `+${acState.stage.thoughts.length}`}
                       </Text>
-                      {acState.stage.thoughts.length > 0 && (
+                      )}
+                      {confirmed && (
                         <Image
                           resizeMode="contain"
                           resizeMethod="resize"
@@ -194,7 +262,8 @@ const CategoryFooter = ({ isCategorizeActive, setActiveCategory }) => {
                           source={require('../assets/images/white-check.png')}
                         />
                       )}
-                    </View>
+                    </Animated.View>
+                    </ContainerView>
                   ) : (
                     <View
                       style={[
