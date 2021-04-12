@@ -12,6 +12,10 @@ const initialState = {
     response: '',
   },
   newResponses: false,
+  removeThoughts: {
+    value: false,
+    thoughts: null,
+  },
 };
 
 const reducer = (state, action) => {
@@ -39,6 +43,23 @@ const reducer = (state, action) => {
         ...state,
         newResponses: false,
       };
+    case 'CATEGORIZED':
+      return {
+        ...state,
+        removeThoughts: {
+          value: true,
+          thoughts: action.thoughts,
+        },
+      };
+    case 'REMOVED_THOUGHTS':
+      return {
+        ...state,
+        responses: action.responses,
+        removeThought: {
+          value: false,
+          thought: null,
+        },
+      };
     default:
       throw new Error();
   }
@@ -48,9 +69,7 @@ export const DigitalThoughtsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const processResponse = async (response: string) => {
-    console.log('response in context: ', response);
     const processedResponse = response.split('. ').filter(Boolean);
-    console.log('processedResponse: ', processedResponse);
     dispatch({
       type: 'SET_RESPONSES',
       responses: [...state.responses, ...processedResponse],
@@ -62,6 +81,22 @@ export const DigitalThoughtsProvider = ({ children }) => {
       processResponse(state.consumeResponse.response);
     }
   }, [state.consumeResponse]);
+
+  useEffect(() => {
+    if (state.removeThoughts.value) {
+
+      let saveTheseAfterManip = state.responses;
+      state.removeThoughts.thoughts.forEach((thought) => {
+        let index = saveTheseAfterManip.findIndex((item) => item === thought);
+        saveTheseAfterManip.splice(index, 1);
+      });
+
+      dispatch({
+        type: 'REMOVED_THOUGHTS',
+        responses: saveTheseAfterManip,
+      });
+    }
+  }, [state.removeThoughts]);
 
   return (
     <DigitalThoughtsContext.Provider value={[state, dispatch]}>
