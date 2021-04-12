@@ -10,7 +10,7 @@ import {
   Switch,
   Image,
   View as ContainerView,
-  Animated
+  Animated,
 } from 'react-native';
 import {
   DraxList,
@@ -27,7 +27,7 @@ import * as Haptics from 'expo-haptics';
 
 type Props = {
   isCategorizeActive: (val: boolean) => void;
-}
+};
 const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
 
@@ -39,31 +39,34 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
 
   const [controlIndex, setControlIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [confirming, setConfirming] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
+  const [confirming, setConfirming] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const colorScheme = useColorScheme();
 
   useEffect(() => {
     if (confirmed) {
       setTimeout(() => {
-        setConfirmed(false)
-      }, 900)
+        setConfirmed(false);
+      }, 900);
     }
-  }, [confirmed])
+  }, [confirmed]);
   useEffect(() => {
-    acDispatch({type: 'SET_ACTIVE_CATEGORY', category: categories[selectedIndex].title})
+    acDispatch({
+      type: 'SET_ACTIVE_CATEGORY',
+      category: categories[selectedIndex].title,
+    });
   }, [selectedIndex]);
 
-  const [animation, setAnimation] = useState(new Animated.Value(0))
+  const [animation, setAnimation] = useState(new Animated.Value(0));
 
-  const colorsInterpolation =  animation.interpolate({
+  const colorsInterpolation = animation.interpolate({
     inputRange: [0, 1],
-    outputRange:['#FF3B30','#34C759']
-  })
-const animatedStyle = {
-    backgroundColor: colorsInterpolation
-  }
-  
+    outputRange: ['#FF3B30', '#34C759'],
+  });
+  const animatedStyle = {
+    backgroundColor: colorsInterpolation,
+  };
+
   const styles = StyleSheet.create({
     confirmText: {
       fontSize: 30,
@@ -73,7 +76,10 @@ const animatedStyle = {
       color: colorScheme === 'dark' ? 'white' : PlatformColor('systemGray6'),
     },
     activeCategory: {
-      backgroundColor: confirming && acState.stage.thoughts.length > 0 ? PlatformColor('systemRed') : PlatformColor('systemGreen'),
+      backgroundColor:
+        confirming && acState.stage.thoughts.length > 0
+          ? PlatformColor('systemRed')
+          : PlatformColor('systemGreen'),
     },
     container: {
       height: '24%',
@@ -134,7 +140,10 @@ const animatedStyle = {
           selectedIndex={controlIndex}
           onChange={(event) => {
             if (acState.stage.activeCategory === '') {
-              acDispatch({type: 'SET_ACTIVE_CATEGORY', category: categories[selectedIndex].title})
+              acDispatch({
+                type: 'SET_ACTIVE_CATEGORY',
+                category: categories[selectedIndex].title,
+              });
             }
             setControlIndex(event.nativeEvent.selectedSegmentIndex);
             isCategorizeActive(controlIndex === 0);
@@ -170,7 +179,7 @@ const animatedStyle = {
           contentContainerStyle={styles.scrollContentContainer}
           style={styles.scrollView}
         >
-          {categories.map((category: { title: string;}, index: number) => (
+          {categories.map((category: { title: string }, index: number) => (
             <React.Fragment key={index}>
               {controlIndex === 0 && (
                 <Pressable
@@ -189,80 +198,96 @@ const animatedStyle = {
                 <Pressable
                   delayLongPress={900}
                   onLongPress={() => {
-                    if (selectedIndex === index && acState.stage.thoughts.length > 0) {
-                      console.log('long press')
-                      console.log('stuff needs to happen')
-                      setConfirmed(true)
-                      acDispatch({type: 'SUBMIT_STAGE'})
+                    if (
+                      selectedIndex === index &&
+                      acState.stage.thoughts.length > 0
+                    ) {
+                      console.log('long press');
+                      console.log('stuff needs to happen');
+                      setConfirmed(true);
+                      acDispatch({ type: 'SUBMIT_STAGE' });
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                     }
                   }}
                   onPressIn={() => {
                     if (selectedIndex === index) {
                       console.log('press in');
-                      setConfirming(true)
+                      setConfirming(true);
                       Animated.timing(animation, {
                         toValue: 1,
                         duration: 900,
-                        useNativeDriver: false
-                      }).start()
+                        useNativeDriver: false,
+                      }).start();
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
                     }
                   }}
                   onPressOut={() => {
                     if (selectedIndex === index) {
-                      setConfirming(false)
+                      setConfirming(false);
                       Animated.timing(animation, {
-                          toValue: 0,
-                          duration: 900,
-                          useNativeDriver: false
-                        }).reset()
+                        toValue: 0,
+                        duration: 900,
+                        useNativeDriver: false,
+                      }).reset();
                     }
                   }}
                   onPress={() => {
-                    if (acState.stage.thoughts.length >= 0 && selectedIndex !== index) {
-                      setSelectedIndex(index)
-                     }
+                    if (
+                      acState.stage.thoughts.length >= 0 &&
+                      selectedIndex !== index
+                    ) {
+                      setSelectedIndex(index);
+                    }
                   }}
                 >
                   {selectedIndex === index ? (
-                    <ContainerView style={{ flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'center', height: '100%',}}>
-                    <Animated.View
-                      style={[
-                        styles.categoriesContainer,
-                        selectedIndex === index ? styles.activeCategory : null,
-                        confirming && acState.stage.thoughts.length > 0 ? {...animatedStyle} : null
-                      ]}
+                    <ContainerView
+                      style={{
+                        flexDirection: 'column',
+                        justifyContent: 'space-evenly',
+                        alignItems: 'center',
+                        height: '100%',
+                      }}
                     >
-                        {!confirmed && (
-                      <Text
+                      <Animated.View
                         style={[
-                          styles.text,
-                          styles.activeText,
-                          acState.stage.thoughts.length > 0
-                            ? styles.confirmText
+                          styles.categoriesContainer,
+                          selectedIndex === index
+                            ? styles.activeCategory
                             : null,
-                          confirming ? {fontSize: 40} : null
+                          confirming && acState.stage.thoughts.length > 0
+                            ? { ...animatedStyle }
+                            : null,
                         ]}
                       >
-                        {acState.stage.thoughts.length === 0 && !confirming
-                          ? category.title
-                          : `+${acState.stage.thoughts.length}`}
-                      </Text>
-                      )}
-                      {confirmed && (
-                        <Image
-                          resizeMode="contain"
-                          resizeMethod="resize"
-                          style={{
-                            width: 22,
-                            height: 22,
-                          }}
-                          source={require('../assets/images/white-check.png')}
-                        />
-                      )}
-                    </Animated.View>
+                        {!confirmed && (
+                          <Text
+                            style={[
+                              styles.text,
+                              styles.activeText,
+                              acState.stage.thoughts.length > 0
+                                ? styles.confirmText
+                                : null,
+                              confirming ? { fontSize: 40 } : null,
+                            ]}
+                          >
+                            {acState.stage.thoughts.length === 0 && !confirming
+                              ? category.title
+                              : `+${acState.stage.thoughts.length}`}
+                          </Text>
+                        )}
+                        {confirmed && (
+                          <Image
+                            resizeMode="contain"
+                            resizeMethod="resize"
+                            style={{
+                              width: 22,
+                              height: 22,
+                            }}
+                            source={require('../assets/images/white-check.png')}
+                          />
+                        )}
+                      </Animated.View>
                     </ContainerView>
                   ) : (
                     <View
