@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from './Themed';
+import * as Haptics from 'expo-haptics';
 
 const TextCard = ({
   text,
@@ -51,7 +52,7 @@ const TextCard = ({
   return (
     <View
       lightColor="#f8fbf8"
-      darkColor={PlatformColor('systemGray6')}
+      darkColor={PlatformColor('systemGray6').toString()}
       style={{
         marginBottom: '10%',
         flexDirection: 'row',
@@ -74,6 +75,7 @@ const TextCard = ({
                 : acDispatch({ type: 'STAGE_ITEM', toBeStaged: text });
             }
             setIsChecked(!isChecked);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }}
         >
           <Image
