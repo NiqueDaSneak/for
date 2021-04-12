@@ -98,7 +98,6 @@ export default function AlignScreen() {
         />
       </View>
       <CategoryFooter
-        setActiveCategory={(category) => setActiveCategory(category)}
         isCategorizeActive={(val) => setIsCategorizeActive(val)}
       />
     </>
