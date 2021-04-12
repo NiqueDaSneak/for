@@ -1,9 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { PlatformColor, StyleSheet } from 'react-native';
-import { View } from '../../components/Themed';
+import { FlatList } from 'react-native-gesture-handler';
+import { Text, View } from '../../components/Themed';
+import { AlignCategoriesContext } from '../../state';
 
 const CategoryScreen = ({ navigation, route }) => {
   const { routeTitle } = route.params;
+  const [acState, acDispatch] = useContext(AlignCategoriesContext);
+  const { categories } = acState;
+
+  const currentCategory = categories.filter(
+    (category) => category.title === routeTitle
+  )[0];
 
   useEffect(() => {
     navigation.setOptions({ title: `${routeTitle}` });
@@ -17,9 +25,14 @@ const CategoryScreen = ({ navigation, route }) => {
   return (
     <View
       lightColor="#f5f5f5"
-      darkColor={PlatformColor('systemGray6')}
+      darkColor={PlatformColor('systemGray6').toString()}
       style={styles.pageContainer}
-    ></View>
+    >
+      <FlatList
+        data={currentCategory.thoughts}
+        renderItem={({ item }) => <Text>{item}</Text>}
+      />
+    </View>
   );
 };
 
