@@ -10,6 +10,7 @@ import { AlignCategoriesProvider } from './state/align-categories.context';
 import { AuthContextProvider } from './state/auth.context';
 import { DigitalThoughtsProvider } from './state/digital-thoughts.context';
 import { ModalContextProvider } from './state/modal.context';
+import { OpportunitiesProvider } from './state/opportunities.context';
 import { QuestionsProvider } from './state/questions.context';
 
 export default function App() {
@@ -26,8 +27,10 @@ export default function App() {
             <DigitalThoughtsProvider>
               <AlignCategoriesProvider>
                 <QuestionsProvider>
+                  <OpportunitiesProvider>
                   <Navigation colorScheme={colorScheme} />
                   <ModalConductor colorScheme={colorScheme} />
+                  </OpportunitiesProvider>
                 </QuestionsProvider>
               </AlignCategoriesProvider>
             </DigitalThoughtsProvider>
