@@ -7,7 +7,7 @@ export const AlignCategoriesContext = createContext();
 // CONTEXT IS THIS ONE IS ABOUT THE ORGANIZATION OF THE DATA FOR
 // THE CUSTOMER
 
-const initialState = {
+const initialState: State = {
   categories: [
     {
       title: 'Health & Wellness',
@@ -37,22 +37,23 @@ const initialState = {
   submitStage: false,
 };
 
-type Thought = {
+export type Thought = {
   title: string;
 };
+
 type Category = {
   title: string;
-  thoughts: [Thought];
+  thoughts: [Thought] | [];
 };
+
 type State = {
-  value: number;
-  categories: Category;
+  categories: Category[];
   createCategory: {
     value: boolean;
     categoryText: string;
   };
   stage: {
-    thoughts: [Thought];
+    thoughts: [Thought] | [];
     activeCategory: string;
   };
   unstage: {
