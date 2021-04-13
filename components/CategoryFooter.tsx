@@ -129,13 +129,13 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   return (
     <View style={styles.container}>
       <View
-        darkColor={PlatformColor('systemGray5').toString()}
-        lightColor={PlatformColor('systemGray6').toString()}
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
         style={styles.segmentedControlContainer}
       >
         <SegmentedControl
           style={styles.segmentedControl}
-          backgroundColor={PlatformColor('systemGray6').toString()}
+          backgroundColor={PlatformColor('systemGray6')}
           values={['View Only', 'Categorize']}
           selectedIndex={controlIndex}
           onChange={(event) => {
@@ -151,8 +151,8 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
         />
       </View>
       <View
-        darkColor={PlatformColor('systemGray5').toString()}
-        lightColor={PlatformColor('systemGray6').toString()}
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
         style={styles.categoryComponents}
       >
         <Pressable
