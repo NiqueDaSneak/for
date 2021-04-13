@@ -10,13 +10,7 @@ import {
 
 import { Text, View } from '../../components/Themed';
 import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
-import TextCard from '../../components/TextCard';
-import {
-  DraxList,
-  DraxProvider,
-  DraxScrollView,
-  DraxView,
-} from 'react-native-drax';
+import {ToggleTextCard} from '../../components/TextCard';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import CategoryFooter from '../../components/CategoryFooter';
 
@@ -79,7 +73,7 @@ export default function AlignScreen() {
     <>
       <View
         lightColor="#f5f5f5"
-        darkColor={PlatformColor('systemGray6')}
+        darkColor={PlatformColor('systemGray6').toString()}
         style={styles.mainContainer}
       >
         <FlatList
@@ -87,7 +81,7 @@ export default function AlignScreen() {
           contentContainerStyle={styles.responsesContentContainer}
           renderItem={({ item, index }) => {
             return (
-              <TextCard
+              <ToggleTextCard
                 activeCategory={activeCategory}
                 isCategorizeActive={isCategorizeActive}
                 text={item}

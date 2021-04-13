@@ -9,8 +9,84 @@ import {
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from './Themed';
 import * as Haptics from 'expo-haptics';
+import {
+  DraxList,
+  DraxProvider,
+  DraxScrollView,
+  DraxView,
+} from 'react-native-drax';
 
-const TextCard = ({
+
+const TextCard = ({ text }: { text: string;}) => {
+  const colorScheme = useColorScheme();
+
+  const styles = StyleSheet.create({
+    cardContainer: {
+      borderRadius: 10,
+      padding: '6%',
+      backgroundColor:
+        colorScheme === 'dark'
+          ? PlatformColor('systemGray5')
+          : PlatformColor('systemGray5'),
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 1.41,
+      elevation: 2,
+      width: '70%',
+      marginBottom: '6%',
+    },
+  });
+
+  return (
+    <View style={styles.cardContainer}>
+    <Text>{text}</Text>
+  </View>
+
+  )
+}
+
+export const DraggableTextCard = ({ text, receivingStyle, payload, onDragStart, onReceiveDragDrop, onReceiveDragOver }) => {
+  const colorScheme = useColorScheme();
+
+  const styles = StyleSheet.create({
+    cardContainer: {
+      borderRadius: 10,
+      padding: '6%',
+      backgroundColor:
+        colorScheme === 'dark'
+          ? PlatformColor('systemGray5')
+          : PlatformColor('systemGray5'),
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 1.41,
+      elevation: 2,
+      width: '70%',
+      marginBottom: '6%',
+    },
+  });
+
+  return (
+    <DraxView
+      receivingStyle={receivingStyle}
+      payload={payload}
+      onDragStart={onDragStart}
+      onReceiveDragDrop={onReceiveDragDrop}
+      onReceiveDragOver={onReceiveDragOver}
+      style={styles.cardContainer}>
+          <Text>{text}</Text>
+    </DraxView>
+)
+}
+
+export const ToggleTextCard = ({
   text,
   isCategorizeActive,
   activeCategory,
@@ -89,10 +165,8 @@ const TextCard = ({
           />
         </Pressable>
       )}
-      <View style={styles.cardContainer}>
-        <Text>{text}</Text>
+      <TextCard text={text} />
       </View>
-    </View>
   );
 };
 
