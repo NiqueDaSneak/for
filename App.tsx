@@ -12,8 +12,9 @@ import { DigitalThoughtsProvider } from './state/digital-thoughts.context';
 import { ModalContextProvider } from './state/modal.context';
 import { OpportunitiesProvider } from './state/opportunities.context';
 import { QuestionsProvider } from './state/questions.context';
+import { ActionSheetProvider, connectActionSheet  } from '@expo/react-native-action-sheet';
 
-export default function App() {
+const App = () => {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
@@ -28,8 +29,12 @@ export default function App() {
               <AlignCategoriesProvider>
                 <QuestionsProvider>
                   <OpportunitiesProvider>
-                  <Navigation colorScheme={colorScheme} />
-                  <ModalConductor colorScheme={colorScheme} />
+                    <ActionSheetProvider>
+                      <>
+                        <Navigation colorScheme={colorScheme} />
+                        <ModalConductor colorScheme={colorScheme} />
+                      </>
+                    </ActionSheetProvider>
                   </OpportunitiesProvider>
                 </QuestionsProvider>
               </AlignCategoriesProvider>
@@ -41,3 +46,6 @@ export default function App() {
     );
   }
 }
+const ConnectedApp = connectActionSheet(App)
+
+ export default ConnectedApp
