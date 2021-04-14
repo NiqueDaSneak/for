@@ -13,6 +13,7 @@ import TabBarIcon from '../components/TabBarIcon';
 import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
 import CategoryScreen from '../screens/align/CategoryScreen';
 import { DigitalThoughtsContext } from '../state';
+import OpportunityScreen from '../screens/align/OpportunityScreen';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -103,6 +104,8 @@ function AlignNavigator() {
         options={{ headerTitle: 'Align' }}
       />
       <AlignStack.Screen name="CategoryScreen" component={CategoryScreen} />
+      <AlignStack.Screen name="OpportunityScreen" component={OpportunityScreen} />
+
     </AlignStack.Navigator>
   );
 }
