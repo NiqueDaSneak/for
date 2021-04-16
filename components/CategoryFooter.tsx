@@ -1,27 +1,18 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
-  FlatList,
   PlatformColor,
   Pressable,
   StyleSheet,
   useColorScheme,
   ScrollView,
   Alert,
-  Switch,
   Image,
   View as ContainerView,
   Animated,
 } from 'react-native';
-import {
-  DraxList,
-  DraxProvider,
-  DraxScrollView,
-  DraxView,
-} from 'react-native-drax';
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/core';
-import { useFonts } from '../hooks/useFonts';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as Haptics from 'expo-haptics';
 
@@ -34,8 +25,6 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const { categories } = acState;
 
   const navigation = useNavigation();
-
-  const { fontTypes } = useFonts();
 
   const [controlIndex, setControlIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -53,7 +42,9 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   useEffect(() => {
     acDispatch({
       type: 'SET_ACTIVE_CATEGORY',
-      category: categories[selectedIndex].title,
+      payload: {
+        category: categories[selectedIndex].title,
+      },
     });
   }, [selectedIndex]);
 
@@ -124,25 +115,33 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
       marginLeft: 10,
       paddingRight: 10,
     },
+    containerButton: {
+      flexDirection: 'column',
+      justifyContent: 'space-evenly',
+      alignItems: 'center',
+      height: '100%',
+    },
   });
 
   return (
     <View style={styles.container}>
       <View
-        darkColor={PlatformColor('systemGray5')}
-        lightColor={PlatformColor('systemGray6')}
+        darkColor={String(PlatformColor('systemGray5'))}
+        lightColor={String(PlatformColor('systemGray6'))}
         style={styles.segmentedControlContainer}
       >
         <SegmentedControl
           style={styles.segmentedControl}
-          backgroundColor={PlatformColor('systemGray6')}
+          backgroundColor={String(PlatformColor('systemGray6'))}
           values={['View Only', 'Categorize']}
           selectedIndex={controlIndex}
           onChange={(event) => {
             if (acState.stage.activeCategory === '') {
               acDispatch({
                 type: 'SET_ACTIVE_CATEGORY',
-                category: categories[selectedIndex].title,
+                payload: {
+                  category: categories[selectedIndex].title,
+                },
               });
             }
             setControlIndex(event.nativeEvent.selectedSegmentIndex);
@@ -151,8 +150,8 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
         />
       </View>
       <View
-        darkColor={PlatformColor('systemGray5')}
-        lightColor={PlatformColor('systemGray6')}
+        darkColor={String(PlatformColor('systemGray5'))}
+        lightColor={String(PlatformColor('systemGray6'))}
         style={styles.categoryComponents}
       >
         <Pressable
@@ -164,7 +163,13 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                 { text: 'Cancel', style: 'destructive' },
                 {
                   text: 'Save',
-                  onPress: (text) => acDispatch({ type: 'NEW_CATEGORY', text }),
+                  onPress: (text) =>
+                    acDispatch({
+                      type: 'NEW_CATEGORY',
+                      payload: {
+                        text: text,
+                      },
+                    }),
                 },
               ]
             );
@@ -202,8 +207,6 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                       selectedIndex === index &&
                       acState.stage.thoughts.length > 0
                     ) {
-                      console.log('long press');
-                      console.log('stuff needs to happen');
                       setConfirmed(true);
                       acDispatch({ type: 'SUBMIT_STAGE' });
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -211,7 +214,6 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                   }}
                   onPressIn={() => {
                     if (selectedIndex === index) {
-                      console.log('press in');
                       setConfirming(true);
                       Animated.timing(animation, {
                         toValue: 1,
@@ -241,14 +243,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                   }}
                 >
                   {selectedIndex === index ? (
-                    <ContainerView
-                      style={{
-                        flexDirection: 'column',
-                        justifyContent: 'space-evenly',
-                        alignItems: 'center',
-                        height: '100%',
-                      }}
-                    >
+                    <ContainerView style={styles.containerButton}>
                       <Animated.View
                         style={[
                           styles.categoriesContainer,

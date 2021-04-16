@@ -9,15 +9,10 @@ import {
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from './Themed';
 import * as Haptics from 'expo-haptics';
-import {
-  DraxList,
-  DraxProvider,
-  DraxScrollView,
-  DraxView,
-} from 'react-native-drax';
+import { DraxView } from 'react-native-drax';
+import type { Thought } from '../state/align-categories.context';
 
-
-const TextCard = ({ text }: { text: string;}) => {
+const TextCard = ({ text }: { text: string }) => {
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -36,20 +31,26 @@ const TextCard = ({ text }: { text: string;}) => {
       shadowOpacity: 0.2,
       shadowRadius: 1.41,
       elevation: 2,
-      width: '70%',
+      maxWidth: '70%',
       marginBottom: '6%',
+      minHeight: 66,
     },
   });
 
   return (
-    <View style={styles.cardContainer}>
-    <Text>{text}</Text>
-  </View>
+    <View style={[styles.cardContainer]}>
+      <Text>{text}</Text>
+    </View>
+  );
+};
 
-  )
-}
-
-export const DraggableTextCard = ({ text, receivingStyle, payload, onDragStart, onReceiveDragDrop, onReceiveDragOver }) => {
+export const DraggableTextCard = ({
+  text,
+  receivingStyle,
+  payload,
+  onDragStart,
+  onReceiveDragDrop,
+}) => {
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -79,19 +80,19 @@ export const DraggableTextCard = ({ text, receivingStyle, payload, onDragStart, 
       payload={payload}
       onDragStart={onDragStart}
       onReceiveDragDrop={onReceiveDragDrop}
-      onReceiveDragOver={onReceiveDragOver}
-      style={styles.cardContainer}>
-          <Text>{text}</Text>
+      style={styles.cardContainer}
+    >
+      <Text>{text}</Text>
     </DraxView>
-)
-}
+  );
+};
 
 export const ToggleTextCard = ({
-  text,
+  data,
   isCategorizeActive,
   activeCategory,
 }: {
-  text: string;
+  data: Thought;
   isCategorizeActive: boolean;
   activeCategory: string;
 }) => {
@@ -128,7 +129,7 @@ export const ToggleTextCard = ({
   return (
     <View
       lightColor="#f8fbf8"
-      darkColor={PlatformColor('systemGray6').toString()}
+      darkColor={String(PlatformColor('systemGray6'))}
       style={{
         marginBottom: '10%',
         flexDirection: 'row',
@@ -140,15 +141,22 @@ export const ToggleTextCard = ({
         <Pressable
           onPress={() => {
             if (isChecked) {
-              acDispatch({ type: 'UNSTAGE_ITEM', toBeUnstaged: text });
+              acDispatch({
+                type: 'UNSTAGE_ITEM',
+                payload: {
+                  toBeUnstaged: data
+                }
+              });
             } else {
               acState.stage.thoughts === 0
                 ? acDispatch({
                     type: 'NEW_STAGE',
-                    toBeStaged: text,
-                    category: activeCategory,
+                    payload: {
+                      toBeStaged: data,
+                      category: activeCategory,
+                    },
                   })
-                : acDispatch({ type: 'STAGE_ITEM', toBeStaged: text });
+                : acDispatch({ type: 'STAGE_ITEM', toBeStaged: data });
             }
             setIsChecked(!isChecked);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -165,8 +173,8 @@ export const ToggleTextCard = ({
           />
         </Pressable>
       )}
-      <TextCard text={text} />
-      </View>
+      <TextCard text={data.text} />
+    </View>
   );
 };
 

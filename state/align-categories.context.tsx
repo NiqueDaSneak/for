@@ -38,10 +38,11 @@ const initialState: State = {
 };
 
 export type Thought = {
-  title: string;
+  text: string;
+  withOpportunity: boolean;
 };
 
-type Category = {
+export type Category = {
   title: string;
   thoughts: [Thought] | [];
 };
@@ -53,7 +54,7 @@ type State = {
     categoryText: string;
   };
   stage: {
-    thoughts: [Thought] | [];
+    thoughts: Thought[] | [];
     activeCategory: string;
   };
   unstage: {
@@ -90,7 +91,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         submitStage: false,
-        categories: action.categories,
+        categories: action.payload.categories,
         stage: {
           thoughts: [],
           activeCategory: '',
@@ -102,7 +103,7 @@ const reducer = (state: State, action: Action): State => {
         categories: [
           ...state.categories,
           {
-            title: action.text,
+            title: action.payload.text,
             thoughts: [],
           },
         ],
@@ -111,15 +112,15 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         stage: {
-          thoughts: [action.toBeStaged],
-          activeCategory: action.category,
+          thoughts: [action.payload.toBeStaged],
+          activeCategory: action.payload.category,
         },
       };
     case ActionKind.stageItem:
       return {
         ...state,
         stage: {
-          thoughts: [...state.stage.thoughts, action.toBeStaged],
+          thoughts: [...state.stage.thoughts, action.payload.toBeStaged],
           activeCategory: state.stage.activeCategory,
         },
       };
@@ -128,14 +129,14 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         unstage: {
           value: true,
-          thought: action.toBeUnstaged,
+          thought: action.payload.toBeUnstaged,
         },
       };
     case ActionKind.itemUnstaged:
       return {
         ...state,
         stage: {
-          thoughts: action.allButOne,
+          thoughts: action.payload.allButOne,
           activeCategory: state.stage.activeCategory,
         },
         unstage: {
@@ -148,7 +149,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         stage: {
           thoughts: [...state.stage.thoughts],
-          activeCategory: action.category,
+          activeCategory: action.payload.category,
         },
       };
     default:
@@ -163,9 +164,14 @@ export const AlignCategoriesProvider = ({ children }) => {
   useEffect(() => {
     if (state.unstage.value) {
       const allButOne = state.stage.thoughts.filter(
-        (thought: string) => thought !== state.unstage.thought
+        (thought) => thought.text !== state.unstage.thought
       );
-      dispatch({ type: 'ITEM_UNSTAGED', allButOne });
+      dispatch({
+        type: ActionKind.itemUnstaged,
+        payload: {
+          allButOne: allButOne,
+        },
+      });
     }
   }, [state.unstage]);
 
@@ -187,8 +193,10 @@ export const AlignCategoriesProvider = ({ children }) => {
         thoughts: state.stage.thoughts,
       });
       dispatch({
-        type: 'STAGE_SUBMITTED',
-        categories: [...allOldCategories, updatedCategory],
+        type: ActionKind.stageSubmitted,
+        payload: {
+          categories: [...allOldCategories, updatedCategory],
+        },
       });
     }
   }, [state.submitStage]);
