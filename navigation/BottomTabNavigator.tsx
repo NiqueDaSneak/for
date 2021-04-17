@@ -14,6 +14,7 @@ import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
 import CategoryScreen from '../screens/align/CategoryScreen';
 import { DigitalThoughtsContext } from '../state';
 import OpportunityScreen from '../screens/align/OpportunityScreen';
+import ActScreen from '../screens/act/ActScreen';
 
 const BottomTab = createBottomTabNavigator();
 
@@ -56,7 +57,7 @@ export default function BottomTabNavigator() {
       />
       <BottomTab.Screen
         name="Act"
-        component={AlignNavigator}
+        component={ActNavigator}
         options={{
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
@@ -104,8 +105,25 @@ function AlignNavigator() {
         options={{ headerTitle: 'Align' }}
       />
       <AlignStack.Screen name="CategoryScreen" component={CategoryScreen} />
-      <AlignStack.Screen name="OpportunityScreen" component={OpportunityScreen} />
-
+      <AlignStack.Screen
+        name="OpportunityScreen"
+        component={OpportunityScreen}
+      />
     </AlignStack.Navigator>
   );
 }
+
+const ActStack = createStackNavigator();
+
+const ActNavigator = () => {
+  return (
+    <ActStack.Navigator>
+      <ActStack.Screen name="ActScreen" component={ActScreen}></ActStack.Screen>
+      <ActStack.Screen
+        name="OpportunityScreen"
+        component={OpportunityScreen}
+      />
+
+    </ActStack.Navigator>
+  );
+};
