@@ -5,6 +5,7 @@ import {
   useColorScheme,
   Image,
   Pressable,
+  View as ContainerView
 } from 'react-native';
 import {  ScrollView } from 'react-native-gesture-handler';
 import { Text } from '../../components/Themed';
@@ -13,10 +14,6 @@ import {
   ModalContext,
   OpportunitiesContext,
 } from '../../state';
-import {
-  DraxProvider,
-  DraxView,
-} from 'react-native-drax';
 import { DraggableTextCard } from '../../components/TextCard';
 import { Category, Thought } from '../../state/align-categories.context';
 import { Opportunity } from '../../state/opportunities.context'
@@ -47,7 +44,6 @@ const CategoryScreen = ({ navigation, route }) => {
     },
   });
   return (
-    <DraxProvider>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         {currentCategory.thoughts.map((thought: Thought) => (
           <>
@@ -101,9 +97,8 @@ const CategoryScreen = ({ navigation, route }) => {
                 marginBottom: '6%',
               }}
             >
-              <DraxView
+              <ContainerView
                 style={{ flexDirection: 'row', alignItems: 'center' }}
-                receivingStyle={{ backgroundColor: 'purple' }}
               >
                 <Image
                   resizeMode="contain"
@@ -117,11 +112,10 @@ const CategoryScreen = ({ navigation, route }) => {
                   source={require('../../assets/images/star.png')}
                 />
                 <Text>{opportunity?.title}</Text>
-              </DraxView>
+              </ContainerView>
             </Pressable>
           ))}
       </ScrollView>
-    </DraxProvider>
   );
 };
 
