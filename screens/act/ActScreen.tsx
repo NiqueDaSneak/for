@@ -14,7 +14,11 @@ import { useFonts } from '../../hooks/useFonts';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { ModalContext, OpportunitiesContext } from '../../state';
 import type { Opportunity } from '../../state/opportunities.context';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 const ActScreen = ({ navigation }) => {
+  const [date, setDate] = useState(new Date(1598051730000));
+
   const colorScheme = useColorScheme();
   const { fontTypes } = useFonts();
   const [controlIndex, setControlIndex] = useState(0);
@@ -65,7 +69,14 @@ const ActScreen = ({ navigation }) => {
     introText: {
       paddingTop: '10%',
       width: '80%',
-      marginBottom: '8%'
+      marginBottom: '8%',
+    },
+    goalExplainContainer: {
+      paddingTop: '10%',
+      height: '100%',
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   });
   return (
@@ -91,11 +102,8 @@ const ActScreen = ({ navigation }) => {
           renderItem={({ item }: { item: Opportunity }) => (
             <Pressable
               key={item.title}
-              onPress={
-                () => console.log('show archive or convert to goal modal')
-                // navigation.navigate('OpportunityScreen', {
-                //   title: item.title,
-                // })
+              onPress={() =>
+                console.log('show archive or convert to goal modal')
               }
               style={styles.oppContainer}
             >
@@ -118,15 +126,7 @@ const ActScreen = ({ navigation }) => {
         />
       )}
       {controlIndex === 1 && (
-        <View
-          style={{
-            paddingTop: '10%',
-            height: '100%',
-            width: '100%',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
+        <ContainerView style={styles.goalExplainContainer}>
           <Image
             resizeMode="contain"
             resizeMethod="resize"
@@ -140,8 +140,13 @@ const ActScreen = ({ navigation }) => {
           <Text style={styles.introText}>
             Creating goals is as easy as pressing this button.
           </Text>
-          <Button title='Goal Setters Press Here' onPress={() => mDispatch({type: 'OPEN', modalType: 'CREATE_GOAL'})}/>
-        </View>
+          <Button
+            title="Goal Setters Press Here"
+            onPress={() =>
+              mDispatch({ type: 'OPEN', modalType: 'CREATE_GOAL' })
+            }
+          />
+        </ContainerView>
       )}
     </View>
   );
