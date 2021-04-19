@@ -15,6 +15,7 @@ import { Text, View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/core';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as Haptics from 'expo-haptics';
+import { useFonts } from '../hooks/useFonts';
 
 type Props = {
   isCategorizeActive: (val: boolean) => void;
@@ -32,6 +33,8 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [confirmed, setConfirmed] = useState(false);
   const colorScheme = useColorScheme();
 
+  const { fontTypes } = useFonts();
+
   useEffect(() => {
     if (confirmed) {
       setTimeout(() => {
@@ -48,7 +51,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
     });
   }, [selectedIndex]);
 
-  const [animation, setAnimation] = useState(new Animated.Value(0));
+  const [animation] = useState(new Animated.Value(0));
 
   const colorsInterpolation = animation.interpolate({
     inputRange: [0, 1],
@@ -126,13 +129,13 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   return (
     <View style={styles.container}>
       <View
-        darkColor={String(PlatformColor('systemGray5'))}
-        lightColor={String(PlatformColor('systemGray6'))}
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
         style={styles.segmentedControlContainer}
       >
         <SegmentedControl
           style={styles.segmentedControl}
-          backgroundColor={String(PlatformColor('systemGray6'))}
+          backgroundColor={PlatformColor('systemGray5')}
           values={['View Only', 'Categorize']}
           selectedIndex={controlIndex}
           onChange={(event) => {
@@ -150,8 +153,8 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
         />
       </View>
       <View
-        darkColor={String(PlatformColor('systemGray5'))}
-        lightColor={String(PlatformColor('systemGray6'))}
+        darkColor={PlatformColor('systemGray5')}
+        lightColor={PlatformColor('systemGray6')}
         style={styles.categoryComponents}
       >
         <Pressable
@@ -160,7 +163,10 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
               'Give your new category a name:',
               'Here is some secondary text.',
               [
-                { text: 'Cancel', style: 'destructive' },
+                {
+                  text: 'Cancel',
+                  style: 'destructive',
+                },
                 {
                   text: 'Save',
                   onPress: (text) =>
@@ -176,7 +182,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
           }}
         >
           <View style={styles.categoriesContainer}>
-            <Text style={styles.text}>+</Text>
+            <Text style={[styles.text, fontTypes.heading]}>+</Text>
           </View>
         </Pressable>
         <ScrollView
