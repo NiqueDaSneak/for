@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "for-2",
-    "slug": "for-2",
+    "name": "for",
+    "slug": "for",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#1C1C1E"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,11 +24,23 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFFFFF"
       }
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "firebase": {
+        "apiKey": "AIzaSyB_-WOrjdMGgAvtDQFSDtkSFzp9qjIfVJE",
+        "authDomain": "for-react-native-2e93a.firebaseapp.com",
+        // "databaseURL": "https://freeyourmindtoday4.firebaseio.com",
+        "projectId": "for-react-native-2e93a",
+        "storageBucket": "for-react-native-2e93a.appspot.com",
+        "messagingSenderId": "142525087884",
+        "appId": "1:142525087884:web:e999aedd87ce13ba4d7ba9",
+        "measurementId": "G-TPVZ1S4FSW"
+      }
     }
   }
 }

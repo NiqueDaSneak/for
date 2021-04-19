@@ -1,78 +1,129 @@
-/**
- * Learn more about createBottomTabNavigator:
- * https://reactnavigation.org/docs/bottom-tab-navigator
- */
-
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import * as React from 'react';
-
+import React, { useContext } from 'react';
+import { Image } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import TabOneScreen from '../screens/TabOneScreen';
-import TabTwoScreen from '../screens/TabTwoScreen';
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
+import TuneInScreen from '../screens/tuneIn/TuneInScreen';
+import QuestionsListScreen from '../screens/tuneIn/QuestionsListScreen';
+import AlignScreen from '../screens/align/AlignScreen';
+import { BottomTabParamList, TuneInParamList, TabTwoParamList } from '../types';
+import TabBarIcon from '../components/TabBarIcon';
+import AnswerQuestionScreen from '../screens/tuneIn/AnswerQuestionScreen';
+import CategoryScreen from '../screens/align/CategoryScreen';
+import { DigitalThoughtsContext } from '../state';
+import OpportunityScreen from '../screens/align/OpportunityScreen';
+import ActScreen from '../screens/act/ActScreen';
 
-const BottomTab = createBottomTabNavigator<BottomTabParamList>();
+const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
   const colorScheme = useColorScheme();
+  const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
+  const { newResponses } = dtState;
 
   return (
     <BottomTab.Navigator
-      initialRouteName="TabOne"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
+      initialRouteName="Tune In"
+      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
+    >
       <BottomTab.Screen
-        name="TabOne"
-        component={TabOneNavigator}
+        name="Tune In"
+        component={TuneInNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="tuneIn"
+              colorScheme={colorScheme}
+              focused={focused}
+            />
+          ),
         }}
       />
       <BottomTab.Screen
-        name="TabTwo"
-        component={TabTwoNavigator}
+        name="Align"
+        component={AlignNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="align"
+              colorScheme={colorScheme}
+              focused={focused}
+              alerted={newResponses}
+            />
+          ),
+        }}
+      />
+      <BottomTab.Screen
+        name="Act"
+        component={ActNavigator}
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name="act"
+              colorScheme={colorScheme}
+              focused={focused}
+            />
+          ),
         }}
       />
     </BottomTab.Navigator>
   );
 }
 
-// You can explore the built-in icon families and icons on the web at:
-// https://icons.expo.fyi/
-function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']; color: string }) {
-  return <Ionicons size={30} style={{ marginBottom: -3 }} {...props} />;
-}
+const TuneInStack = createStackNavigator();
 
-// Each tab has its own navigation stack, you can read more about this pattern here:
-// https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
-
-function TabOneNavigator() {
+function TuneInNavigator() {
   return (
-    <TabOneStack.Navigator>
-      <TabOneStack.Screen
-        name="TabOneScreen"
-        component={TabOneScreen}
-        options={{ headerTitle: 'Tab One Title' }}
+    <TuneInStack.Navigator>
+      <TuneInStack.Screen
+        name="TuneInScreen"
+        component={TuneInScreen}
+        options={{ headerTitle: 'Tune In' }}
       />
-    </TabOneStack.Navigator>
+      <TuneInStack.Screen
+        name="QuestionListScreen"
+        component={QuestionsListScreen}
+      />
+      <TuneInStack.Screen
+        name="AnswerQuestionScreen"
+        component={AnswerQuestionScreen}
+      />
+    </TuneInStack.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const AlignStack = createStackNavigator();
 
-function TabTwoNavigator() {
+function AlignNavigator() {
   return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: 'Tab Two Title' }}
+    <AlignStack.Navigator>
+      <AlignStack.Screen
+        name="AlignScreen"
+        component={AlignScreen}
+        options={{ headerTitle: 'Align' }}
       />
-    </TabTwoStack.Navigator>
+      <AlignStack.Screen name="CategoryScreen" component={CategoryScreen} />
+      <AlignStack.Screen
+        name="OpportunityScreen"
+        component={OpportunityScreen}
+      />
+    </AlignStack.Navigator>
   );
 }
+
+const ActStack = createStackNavigator();
+
+const ActNavigator = () => {
+  return (
+    <ActStack.Navigator>
+      <ActStack.Screen name="ActScreen" component={ActScreen}></ActStack.Screen>
+      {/* <ActStack.Screen
+        name="OpportunityScreen"
+        component={OpportunityScreen}
+      /> */}
+
+    </ActStack.Navigator>
+  );
+};
