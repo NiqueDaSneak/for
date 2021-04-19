@@ -10,7 +10,7 @@ import {
 
 import { Text, View } from '../../components/Themed';
 import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
-import {ToggleTextCard} from '../../components/TextCard';
+import { ToggleTextCard } from '../../components/TextCard';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import CategoryFooter from '../../components/CategoryFooter';
 
@@ -22,8 +22,9 @@ export default function AlignScreen() {
   const { keyboardHeight } = useKeyboard();
 
   const [isCategorizeActive, setIsCategorizeActive] = useState(false);
+  const [acState, acDispatch] = useContext(AlignCategoriesContext);
+  const { activeCategory } = acState.stage;
 
-  const [activeCategory, setActiveCategory] = useState('');
   const styles = StyleSheet.create({
     createThoughtButtonContainer: {
       height: '12%',

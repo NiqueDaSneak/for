@@ -31,26 +31,13 @@ type State = {
   };
 };
 const initialState: State = {
-  opportunities: [
-    {
-      title: 'Build this for customers',
-      categoryTitle: 'Health & Wellness',
-      questions: [],
-      thoughts: [
-        {
-          text: 'Four score and seven years ago',
-          withOpportunity: true,
-        },
-        {
-          text: 'Four score and one thousand years ago',
-          withOpportunity: true,
-        },
-      ],
-    },
-  ],
+  opportunities: [],
   creating: {
     value: false,
-    data: [],
+    data: {
+      thoughts: [],
+      category: ''
+    },
   },
   addQuestion: {
     value: false,
@@ -145,6 +132,7 @@ export const OpportunitiesProvider = ({ children }) => {
                 payload: {
                   title: text,
                   thoughts: [...state.creating.data.thoughts],
+                  categoryTitle: state.creating.data.category
                 },
               }),
           },

@@ -17,6 +17,7 @@ import {
 import { DraggableTextCard } from '../../components/TextCard';
 import { Category, Thought } from '../../state/align-categories.context';
 import { Opportunity } from '../../state/opportunities.context'
+import { DraxProvider } from 'react-native-drax';
 const CategoryScreen = ({ navigation, route }) => {
   const colorScheme = useColorScheme();
   const { routeTitle } = route.params;
@@ -44,13 +45,14 @@ const CategoryScreen = ({ navigation, route }) => {
     },
   });
   return (
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+    <ScrollView contentContainerStyle={styles.contentContainer}>
+      <DraxProvider>
         {currentCategory.thoughts.map((thought: Thought) => (
           <>
             {!thought.withOpportunity && (
               <DraggableTextCard
-                key={thought.text}
-                text={thought.text}
+                key={thought}
+                text={thought}
                 receivingStyle={{
                   backgroundColor: PlatformColor('systemGray'),
                 }}
@@ -59,13 +61,17 @@ const CategoryScreen = ({ navigation, route }) => {
                 onReceiveDragDrop={(event) => {
                   oDispatch({
                     type: 'CREATING',
-                    payload: { thoughts: [event.dragged.payload, thought] },
+                    payload: {
+                      thoughts: [event.dragged.payload, thought],
+                      category: currentCategory.title
+                    },
                   });
                 }}
               />
             )}
           </>
         ))}
+      </DraxProvider>
         {opportunities?.filter(
             (opportunity: Opportunity) =>
               opportunity?.categoryTitle === currentCategory.title

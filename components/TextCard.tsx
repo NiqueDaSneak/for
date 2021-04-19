@@ -88,14 +88,15 @@ export const DraggableTextCard = ({
 };
 
 export const ToggleTextCard = ({
-  data,
+  text,
   isCategorizeActive,
   activeCategory,
 }: {
-  data: Thought;
+  text: Thought;
   isCategorizeActive: boolean;
   activeCategory: string;
 }) => {
+  console.log('text: ', text);
   const colorScheme = useColorScheme();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -144,19 +145,24 @@ export const ToggleTextCard = ({
               acDispatch({
                 type: 'UNSTAGE_ITEM',
                 payload: {
-                  toBeUnstaged: data
-                }
+                  toBeUnstaged: text,
+                },
               });
             } else {
               acState.stage.thoughts === 0
                 ? acDispatch({
                     type: 'NEW_STAGE',
                     payload: {
-                      toBeStaged: data,
+                      toBeStaged: text,
                       category: activeCategory,
                     },
                   })
-                : acDispatch({ type: 'STAGE_ITEM', toBeStaged: data });
+                : acDispatch({
+                    type: 'STAGE_ITEM',
+                    payload: {
+                      toBeStaged: text,
+                    },
+                  });
             }
             setIsChecked(!isChecked);
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -173,7 +179,7 @@ export const ToggleTextCard = ({
           />
         </Pressable>
       )}
-      <TextCard text={data.text} />
+      <TextCard text={text} />
     </View>
   );
 };

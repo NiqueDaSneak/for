@@ -22,7 +22,9 @@ const OpportunityScreen = ({ route }) => {
   const [oState, oDispatch] = useContext(OpportunitiesContext);
   const opportunity = oState.opportunities.filter(
     (opp: Opportunity) => opp.title === title
-  )[0];
+    )[0];
+    console.log('title: ', title)
+    console.log('opportunity: ', opportunity.thoughts)
 
   const styles = StyleSheet.create({
     container: {
@@ -73,7 +75,7 @@ const OpportunityScreen = ({ route }) => {
       <FlatList
         keyExtractor={(item) => item.text}
         data={opportunity?.thoughts}
-        renderItem={({ item: thought }) => <TextCard text={thought.text} />}
+        renderItem={({ item: thought }) => <TextCard text={thought          } />}
         contentContainerStyle={styles.oppContainer}
       />
       {opportunity?.questions?.length === 0 ? (
