@@ -21,12 +21,6 @@
     "ios": {
       "supportsTablet": true
     },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      }
-    },
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
@@ -34,7 +28,7 @@
       "firebase": {
         "apiKey": "AIzaSyB_-WOrjdMGgAvtDQFSDtkSFzp9qjIfVJE",
         "authDomain": "for-react-native-2e93a.firebaseapp.com",
-        // "databaseURL": "https://freeyourmindtoday4.firebaseio.com",
+        "databaseURL": "https://freeyourmindtoday4.firebaseio.com",
         "projectId": "for-react-native-2e93a",
         "storageBucket": "for-react-native-2e93a.appspot.com",
         "messagingSenderId": "142525087884",

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import {
   Text,
   Button,
@@ -9,7 +9,6 @@ import {
   PlatformColor,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { useKeyboard } from '../../hooks/useKeyboard';
 import { AuthContext, ModalContext } from '../../state';
 import { useFonts } from '../../hooks/useFonts';
 
@@ -22,12 +21,12 @@ const PhoneVerification = ({
   colorScheme: string;
   close: () => void;
 }) => {
-  const { fontTypes, fontSizes } = useFonts();
-  const { keyboardHeight } = useKeyboard();
+  const { fontSizes } = useFonts();
   const phoneNumberInputRef = useRef();
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [authState, authDispatch]: [Object, Function] = useContext(AuthContext);
-  const [modalState, modalDispatch] = useContext(ModalContext);
+  const [authState, authDispatch] = useContext(AuthContext);
+  const { resetVerification } = authState;
+  const [, modalDispatch] = useContext(ModalContext);
 
   const verifyInputRef = useRef();
   const [verifyCode, setVerifyCode] = useState('');
@@ -71,12 +70,14 @@ const PhoneVerification = ({
       color: colorScheme === 'dark' ? PlatformColor('systemGray6') : 'black',
     },
     copy2: {
+      width: '80%',
       textAlign: 'center',
+      fontWeight: 'bold',
       fontSize: fontSizes.small,
       color:
         colorScheme === 'dark'
-          ? PlatformColor('systemGray5')
-          : PlatformColor('systemGray2'),
+          ? PlatformColor('systemGray6')
+          : PlatformColor('systemGray'),
     },
     secondContainer: {
       height: '40%',
@@ -104,6 +105,20 @@ const PhoneVerification = ({
       justifyContent: 'space-evenly',
     },
   });
+
+  const resetVerify = () => {
+    setPhoneNumber('');
+    setVerifyCode('');
+    setVerifyVisible(false);
+  };
+
+  useEffect(() => {
+    if (resetVerification) {
+      resetVerify();
+      authDispatch({ type: 'VERIFY_HAS_RESET' });
+    }
+  }, [resetVerification, authDispatch, resetVerify]);
+
   return (
     <Modal
       transparent
@@ -130,11 +145,14 @@ const PhoneVerification = ({
             onChangeText={(text) => setPhoneNumber(text)}
           />
           <Button
+            color="green"
             title="Send Code"
             onPress={() => {
               authDispatch({
                 type: 'PHONE_VERIFICATION',
-                phoneNumber,
+                payload: {
+                  phoneNumber,
+                },
               });
               setVerifyVisible(true);
               close();
@@ -144,7 +162,7 @@ const PhoneVerification = ({
             title="Cancel"
             color="red"
             onPress={() => {
-              console.log('closing');
+              resetVerify();
               close();
             }}
           />
@@ -167,11 +185,14 @@ const PhoneVerification = ({
           />
           <View style={styles.buttonContainer}>
             <Button
+              color="green"
               title="Verify Code"
               onPress={() => {
                 authDispatch({
                   type: 'VERIFY_PHONE',
-                  verifyCode,
+                  payload: {
+                    verifyCode,
+                  },
                 });
                 modalDispatch({ type: 'CLOSE' });
               }}
@@ -180,7 +201,9 @@ const PhoneVerification = ({
               title="Cancel"
               color="red"
               onPress={() => {
-                modalDispatch({ type: 'CLOSE' });
+                authDispatch({ type: 'RESET_PHONE_VERIFICATION' });
+                resetVerify();
+                close();
               }}
             />
           </View>

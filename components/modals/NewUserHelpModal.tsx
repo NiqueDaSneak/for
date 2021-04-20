@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BlurView } from 'expo-blur';
 import {
   Modal,
@@ -18,7 +18,7 @@ const NewUserHelpModal = ({
 }: {
   visible: boolean;
   colorScheme: string;
-  close: () => void;
+    close: () => void;
 }) => {
   const { fontTypes } = useFonts();
 
@@ -70,6 +70,7 @@ const NewUserHelpModal = ({
       alignItems: 'center',
     },
   });
+
   return (
     <Modal
       presentationStyle="overFullScreen"
