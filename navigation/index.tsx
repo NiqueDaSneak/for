@@ -34,18 +34,20 @@ function RootNavigator({ colorScheme }: { colorScheme: string }) {
   const { isAuthenticated } = authState;
   return (
     <>
-      {isAuthenticated ? (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Root" component={BottomTabNavigator} />
-          <Stack.Screen
-            name="NotFound"
-            component={NotFoundScreen}
-            options={{ title: 'Oops!' }}
-          />
-        </Stack.Navigator>
-      ) : (
-        <Authentication colorScheme={colorScheme} />
-      )}
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {isAuthenticated ? (
+          <>
+            <Stack.Screen name="Root" component={BottomTabNavigator} />
+            <Stack.Screen
+              name="NotFound"
+              component={NotFoundScreen}
+              options={{ title: 'Oops!' }}
+            />
+          </>
+        ) : (
+          <Stack.Screen name="Auth" component={Authentication} />
+        )}
+      </Stack.Navigator>
     </>
   );
 }

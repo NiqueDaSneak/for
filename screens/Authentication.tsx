@@ -1,28 +1,32 @@
 import React, { useContext } from 'react';
-import { View, Image, Text, PlatformColor, StyleSheet } from 'react-native';
+import {
+  Image,
+  Text,
+  PlatformColor,
+  StyleSheet,
+  useColorScheme,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { ModalContext } from '../state';
 import PhoneLogin from '../components/PhoneLogin';
+import { View } from '../components/Themed';
 
-interface Props {
-  colorScheme: string;
-}
-const Authentication = ({ colorScheme }: Props) => {
+// interface Props {
+//   colorScheme: string;
+// }
+const Authentication = () => {
   const { keyboardHeight, keyboardOpen } = useKeyboard();
   const [modalState, modalDispatch] = useContext(ModalContext);
+  const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
     pageContainer: {
       height: '100%',
       width: '100%',
-      backgroundColor: PlatformColor('systemGray6'),
+      // backgroundColor: PlatformColor('systemGray6'),
       alignItems: 'center',
-    },
-    safeArea: {
-      marginTop: '60%',
-      height: 210,
-      justifyContent: 'space-evenly',
+      paddingTop: '60%',
     },
     logoGreen: {
       resizeMode: 'contain',
@@ -35,14 +39,16 @@ const Authentication = ({ colorScheme }: Props) => {
       fontStyle: 'italic',
     },
     button: {
-      position: 'absolute',
-      bottom: keyboardHeight + 30,
-      left: 'auto',
+      marginTop: '20%',
     },
   });
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.pageContainer}>
+    <SafeAreaView>
+      <View
+        lightColor="#f5f5f5"
+        darkColor={PlatformColor('systemGray6')}
+        style={styles.pageContainer}
+      >
         <Image
           resizeMode="contain"
           resizeMethod="resize"
@@ -50,17 +56,21 @@ const Authentication = ({ colorScheme }: Props) => {
           source={require('../assets/images/logo-green.png')}
         />
         <Text style={styles.headline}>What are you here for?</Text>
-      </View>
-      <View style={styles.button}>
-        <PhoneLogin
-          colorScheme={colorScheme}
-          onPress={() => {
-            modalDispatch({
-              type: 'OPEN',
-              modalType: 'GET_PHONE',
-            });
-          }}
-        />
+        <View
+          lightColor="#f5f5f5"
+          darkColor={PlatformColor('systemGray6')}
+          style={styles.button}
+        >
+          <PhoneLogin
+            colorScheme={colorScheme}
+            onPress={() => {
+              modalDispatch({
+                type: 'OPEN',
+                modalType: 'GET_PHONE',
+              });
+            }}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );

@@ -7,7 +7,6 @@ import {
   View as ContainerView,
   Button,
   PlatformColor,
-  useColorScheme,
   Pressable,
   Keyboard,
 } from 'react-native';
@@ -33,6 +32,7 @@ const GoalCreationModal = ({
   const [remindText, setRemindText] = useState('Morning');
   const [date, setDate] = useState(new Date());
 
+  // unsure for typescript
   const inputRef = useRef();
   const { keyboardOpen } = useKeyboard();
 
@@ -107,6 +107,7 @@ const GoalCreationModal = ({
       }
     );
   };
+
   return (
     <Modal animationType="fade" visible={visible} transparent>
       <BlurView style={styles.blur} intensity={100}>

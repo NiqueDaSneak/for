@@ -2,22 +2,50 @@ import React, { useReducer, createContext } from 'react';
 
 export const ModalContext = createContext();
 
-const initialState = {
+enum ModalTypes {
+  getPhone = 'GET_PHONE',
+  showNewHelp = 'SHOW_NEW_HELP',
+  createGoal = 'CREATE_GOAL',
+}
+
+type State = {
+  modalVisible: boolean;
+  modalType: ModalTypes | '';
+  modalData: any;
+};
+
+const initialState: State = {
   modalVisible: false,
   modalType: '',
   modalData: {},
 };
 
-const reducer = (state, action) => {
+enum ActionKind {
+  open = 'OPEN',
+  close = 'CLOSE',
+}
+
+type Action = {
+  type: ActionKind;
+  modalType: ModalTypes;
+  modalData: any;
+};
+
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'OPEN':
+    case ActionKind.open:
       return {
-        modalActive: true,
+        ...state,
+        modalVisible: true,
         modalType: action.modalType,
         modalData: action.modalData,
       };
-    case 'CLOSE':
-      return { modalVisible: false };
+    case ActionKind.close:
+      return {
+        ...state,
+        modalVisible: false,
+        modalType: '',
+      };
     default:
       throw new Error();
   }

@@ -12,7 +12,10 @@ import { DigitalThoughtsProvider } from './state/digital-thoughts.context';
 import { ModalContextProvider } from './state/modal.context';
 import { OpportunitiesProvider } from './state/opportunities.context';
 import { QuestionsProvider } from './state/questions.context';
-import { ActionSheetProvider, connectActionSheet  } from '@expo/react-native-action-sheet';
+import {
+  ActionSheetProvider,
+  connectActionSheet,
+} from '@expo/react-native-action-sheet';
 
 const App = () => {
   const isLoadingComplete = useCachedResources();
@@ -45,7 +48,7 @@ const App = () => {
       </SafeAreaProvider>
     );
   }
-}
-const ConnectedApp = connectActionSheet(App)
+};
+const ConnectedApp = connectActionSheet(App);
 
- export default ConnectedApp
+export default ConnectedApp;
