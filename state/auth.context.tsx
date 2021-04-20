@@ -19,71 +19,124 @@ import {
 import fb from 'firebase';
 import firebase, { db } from '../firebase.js';
 import { ModalContext } from './modal.context';
+import { event } from 'react-native-reanimated';
 
 export const AuthContext = createContext();
-
-const initialState = {
+type State = {
+  phoneLogin: {
+    loggingIn: boolean;
+    verifyingCode: boolean;
+    phoneNumber: string;
+    verificationCode: string;
+  };
+  isAuthenticated: boolean;
+  activeUser: {
+    id: string;
+    phone: string;
+  };
+  loggingOut: boolean;
+  resetVerification: boolean;
+};
+const initialState: State = {
   phoneLogin: {
     loggingIn: false,
     verifyingCode: false,
-    phoneNumber: null,
+    phoneNumber: '',
     verificationCode: '',
   },
   isAuthenticated: false,
   activeUser: {
-    id: null,
-    phone: null,
+    id: '',
+    phone: '',
   },
   loggingOut: false,
+  resetVerification: false,
 };
 
-const reducer = (state, action) => {
+enum ActionKind {
+  loginUser = 'LOGIN_USER',
+  phoneVerify = 'PHONE_VERIFICATION',
+  resetPhoneVerify = 'RESET_PHONE_VERIFICATION',
+  verifyPhone = 'VERIFY_PHONE',
+  logOut = 'LOG_OUT',
+  loggedOut = 'LOGGED_OUT',
+  resetVerify = 'RESET_VERIFY',
+  verifyHasReset = 'VERIFY_HAS_RESET',
+}
+
+type Action = {
+  type: ActionKind;
+  payload?: any | undefined;
+};
+
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'LOGIN_USER':
+    case ActionKind.loginUser:
       return {
         ...state,
         phoneLogin: {
           loggingIn: false,
           verifyingCode: false,
-          phoneNumber: null,
+          phoneNumber: '',
           verificationCode: '',
         },
-        activeUser: action.user,
+        activeUser: action.payload.user,
         isAuthenticated: true,
-        creatingNewUser: false,
       };
-    case 'PHONE_VERIFICATION':
+    case ActionKind.phoneVerify:
       return {
         ...state,
         phoneLogin: {
+          ...state.phoneLogin,
           loggingIn: true,
-          phoneNumber: action.phoneNumber,
+          phoneNumber: action.payload.phoneNumber,
         },
       };
-    case 'VERIFY_PHONE':
+    case ActionKind.resetPhoneVerify:
       return {
         ...state,
         phoneLogin: {
-          verifyingCode: true,
-          verificationCode: action.verifyCode,
+          loggingIn: false,
+          verifyingCode: false,
+          phoneNumber: '',
+          verificationCode: '',
         },
       };
-    case 'LOG_OUT':
+    case ActionKind.verifyPhone:
+      return {
+        ...state,
+        phoneLogin: {
+          ...state.phoneLogin,
+          verifyingCode: true,
+          verificationCode: action.payload.verifyCode,
+        },
+      };
+    case ActionKind.logOut:
       return {
         ...state,
         loggingOut: true,
       };
-    case 'LOGGED_OUT':
+    case ActionKind.loggedOut:
       return {
         ...state,
         isAuthenticated: false,
         loggingOut: false,
         activeUser: {
-          id: null,
-          phone: null,
-          username: null,
+          id: '',
+          phone: '',
         },
       };
+    case ActionKind.resetVerify:
+      return {
+        ...state,
+        resetVerification: true,
+      };
+    case ActionKind.verifyHasReset:
+      return {
+        ...state,
+        resetVerification: false,
+      };
+
     default:
       throw new Error();
   }
@@ -125,8 +178,10 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             .then((snapshot) => {
               snapshot.forEach((userDoc) => {
                 dispatch({
-                  type: 'LOGIN_USER',
-                  user: userDoc.data(),
+                  type: ActionKind.loginUser,
+                  payload: {
+                    user: userDoc.data(),
+                  },
                 });
               });
             });
@@ -135,7 +190,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         }
       } else {
         console.log('The user is not logged in');
-        dispatch({ type: 'LOGGED_OUT' });
+        dispatch({ type: ActionKind.loggedOut });
       }
     });
   }, []);
@@ -148,24 +203,29 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (state.phoneLogin.loggingIn) {
       const phoneProvider = new fb.auth.PhoneAuthProvider();
-      try {
-        phoneProvider
-          .verifyPhoneNumber(
-            `+1${state.phoneLogin.phoneNumber}`,
-            recaptchaVerifier.current
-          )
-          .then((val) => {
-            setFirebaseVerificationResponse(val);
-            modalDispatch({
-              type: 'OPEN',
-              modalType: 'GET_PHONE',
-            });
+      phoneProvider
+        .verifyPhoneNumber(
+          `+1${state.phoneLogin.phoneNumber}`,
+          recaptchaVerifier.current
+        )
+        .then((val) => {
+          setFirebaseVerificationResponse(val);
+          modalDispatch({
+            type: 'OPEN',
+            modalType: 'GET_PHONE',
           });
-      } catch (error) {
-        console.log(error);
-      }
+        })
+        .catch(() => {
+          dispatch({ type: ActionKind.resetPhoneVerify });
+          dispatch({ type: ActionKind.resetVerify });
+        });
     }
-  }, [state.phoneLogin.loggingIn, state.phoneLogin.phoneNumber]);
+  }, [
+    state.phoneLogin.loggingIn,
+    state.phoneLogin.phoneNumber,
+    dispatch,
+    modalDispatch,
+  ]);
 
   useEffect(() => {
     if (state.phoneLogin.verifyingCode) {
@@ -187,10 +247,12 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
                   .update({ id: docRef.id })
                   .then(() => {
                     dispatch({
-                      type: 'LOGIN_USER',
-                      user: {
-                        id: docRef.id,
-                        phone: result.user.phoneNumber,
+                      type: ActionKind.loginUser,
+                      payload: {
+                        user: {
+                          id: docRef.id,
+                          phone: result.user.phoneNumber,
+                        },
                       },
                     });
                     modalDispatch({
@@ -209,6 +271,9 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={firebase.app().options}
+        attemptInvisibleVerification={true}
+        title="Prove you are human!"
+        cancelLabel="Go Back"
       />
       {children}
     </AuthContext.Provider>
