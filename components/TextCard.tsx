@@ -1,22 +1,24 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   PlatformColor,
   Pressable,
   StyleSheet,
   useColorScheme,
-  Image,
+  Animated,
 } from 'react-native';
 import { AlignCategoriesContext } from '../state';
 import { Text, View } from './Themed';
 import * as Haptics from 'expo-haptics';
 import { DraxView } from 'react-native-drax';
 import type { Thought } from '../state/align-categories.context';
+import { Easing } from 'react-native-reanimated';
 
 const TextCard = ({ text }: { text: string }) => {
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
     cardContainer: {
+      minWidth: 210,
       borderRadius: 10,
       padding: '6%',
       backgroundColor:
@@ -103,6 +105,14 @@ export const ToggleTextCard = ({
 
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
   const styles = StyleSheet.create({
+    container: {
+      marginBottom: '10%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingLeft: '12%',
+      paddingRight: '12%',
+      justifyContent: isCategorizeActive ? 'space-between' : 'center',
+    },
     cardContainer: {
       borderRadius: 10,
       padding: '6%',
@@ -127,16 +137,26 @@ export const ToggleTextCard = ({
       ? require('../assets/images/checked.png')
       : require('../assets/images/unchecked.png');
   };
+
+  const scaleRef = new Animated.Value(0);
+
+  useEffect(() => {
+    if (isCategorizeActive) {
+      Animated.timing(scaleRef, {
+        delay: Math.floor(Math.random() * 200),
+        toValue: 1,
+        duration: 200,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isCategorizeActive]);
+
   return (
     <View
       lightColor="#f8fbf8"
       darkColor={String(PlatformColor('systemGray6'))}
-      style={{
-        marginBottom: '10%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
-      }}
+      style={styles.container}
     >
       {isCategorizeActive && (
         <Pressable
@@ -168,12 +188,13 @@ export const ToggleTextCard = ({
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }}
         >
-          <Image
+          <Animated.Image
             resizeMode="contain"
             resizeMethod="resize"
             style={{
               width: 40,
               height: 40,
+              transform: [{ scale: scaleRef }],
             }}
             source={getIcon()}
           />
