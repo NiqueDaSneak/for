@@ -84,7 +84,6 @@ export const DigitalThoughtsProvider = ({ children }) => {
 
   useEffect(() => {
     if (state.removeThoughts.value) {
-
       let saveTheseAfterManip = state.responses;
       state.removeThoughts.thoughts.forEach((thought) => {
         let index = saveTheseAfterManip.findIndex((item) => item === thought);
