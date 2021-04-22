@@ -6,6 +6,7 @@ import {
   StyleSheet,
   useColorScheme,
   ScrollView,
+  Image,
 } from 'react-native';
 
 import { Text, View } from '../../components/Themed';
@@ -13,6 +14,7 @@ import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
 import { ToggleTextCard } from '../../components/TextCard';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import CategoryFooter from '../../components/CategoryFooter';
+import { useFonts } from '../../hooks/useFonts';
 
 export default function AlignScreen() {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
@@ -25,6 +27,7 @@ export default function AlignScreen() {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
   const { activeCategory } = acState.stage;
 
+  const { fontTypes } = useFonts();
   const styles = StyleSheet.create({
     createThoughtButtonContainer: {
       height: '12%',
@@ -77,20 +80,48 @@ export default function AlignScreen() {
         darkColor={PlatformColor('systemGray6').toString()}
         style={styles.mainContainer}
       >
-        <FlatList
-          data={responses}
-          contentContainerStyle={styles.responsesContentContainer}
-          renderItem={({ item, index }) => {
-            return (
-              <ToggleTextCard
-                activeCategory={activeCategory}
-                isCategorizeActive={isCategorizeActive}
-                text={item}
-              />
-            );
-          }}
-          keyExtractor={(item, index) => `${item}`}
-        />
+        {responses.length === 0 ? (
+          <>
+            <Image
+              resizeMode="contain"
+              resizeMethod="resize"
+              style={{
+                resizeMode: 'contain',
+                height: 300,
+                width: '90%',
+                marginLeft: '5%'
+              }}
+              source={require('../../assets/images/align-no-responses.png')}
+            />
+            <Text
+              style={[
+                fontTypes.subHeading,
+                {
+                  textAlign: 'center',
+                  width: '80%',
+                  marginLeft: '10%'
+                },
+              ]}
+            >
+              Answer more questions on the Tune In tab to populate this screen.
+            </Text>
+          </>
+        ) : (
+          <FlatList
+            data={responses}
+            contentContainerStyle={styles.responsesContentContainer}
+            renderItem={({ item, index }) => {
+              return (
+                <ToggleTextCard
+                  activeCategory={activeCategory}
+                  isCategorizeActive={isCategorizeActive}
+                  text={item}
+                />
+              );
+            }}
+            keyExtractor={(item, index) => `${item}`}
+          />
+        )}
       </View>
       <CategoryFooter
         isCategorizeActive={(val) => setIsCategorizeActive(val)}
