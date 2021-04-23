@@ -115,11 +115,11 @@ export default function AlignScreen() {
                 <ToggleTextCard
                   activeCategory={activeCategory}
                   isCategorizeActive={isCategorizeActive}
-                  text={item}
+                  thought={item}
                 />
               );
             }}
-            keyExtractor={(item, index) => `${item}`}
+            keyExtractor={(item) => `${item.text}`}
           />
         )}
       </View>

@@ -215,7 +215,9 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                     ) {
                       setConfirmed(true);
                       acDispatch({ type: 'SUBMIT_STAGE' });
+                      setControlIndex(0)
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                      isCategorizeActive(false);
                     }
                   }}
                   onPressIn={() => {

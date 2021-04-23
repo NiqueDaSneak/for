@@ -90,15 +90,14 @@ export const DraggableTextCard = ({
 };
 
 export const ToggleTextCard = ({
-  text,
+  thought,
   isCategorizeActive,
   activeCategory,
 }: {
-  text: Thought;
+  thought: Thought;
   isCategorizeActive: boolean;
   activeCategory: string;
 }) => {
-  console.log('text: ', text);
   const colorScheme = useColorScheme();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -162,25 +161,28 @@ export const ToggleTextCard = ({
         <Pressable
           onPress={() => {
             if (isChecked) {
+              console.log('unstage: ', acState.stage)
               acDispatch({
                 type: 'UNSTAGE_ITEM',
                 payload: {
-                  toBeUnstaged: text,
+                  toBeUnstaged: thought,
                 },
               });
+              console.log('unstaged??? ', acState.stage)
+
             } else {
               acState.stage.thoughts === 0
                 ? acDispatch({
                     type: 'NEW_STAGE',
                     payload: {
-                      toBeStaged: text,
+                      toBeStaged: thought,
                       category: activeCategory,
                     },
                   })
                 : acDispatch({
                     type: 'STAGE_ITEM',
                     payload: {
-                      toBeStaged: text,
+                      toBeStaged: thought,
                     },
                   });
             }
@@ -200,7 +202,7 @@ export const ToggleTextCard = ({
           />
         </Pressable>
       )}
-      <TextCard text={text} />
+      <TextCard text={thought.text} />
     </View>
   );
 };

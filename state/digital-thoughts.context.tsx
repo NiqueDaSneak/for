@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { createContext, useReducer } from 'react';
+import { Thought } from './align-categories.context';
 
 export const DigitalThoughtsContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE ALIGN CATEGORIES
@@ -70,9 +71,11 @@ export const DigitalThoughtsProvider = ({ children }) => {
 
   const processResponse = async (response: string) => {
     const processedResponse = response.split('. ').filter(Boolean);
+    let responsesAsObjects:Thought[] = []
+    processedResponse.forEach(thought => responsesAsObjects.push({text: thought, withOpportunity: false}))
     dispatch({
       type: 'SET_RESPONSES',
-      responses: [...state.responses, ...processedResponse],
+      responses: [...responsesAsObjects, ...state.responses, ],
     });
   };
 

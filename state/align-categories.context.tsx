@@ -32,7 +32,10 @@ const initialState: State = {
   },
   unstage: {
     value: false,
-    thought: '',
+    thought: {
+      text: '',
+      withOpportunity: false,
+    },
   },
   submitStage: false,
 };
@@ -59,7 +62,10 @@ type State = {
   };
   unstage: {
     value: boolean;
-    thought: string;
+    thought: {
+      text: string;
+      withOpportunity: boolean;
+    };
   };
   submitStage: boolean;
 };
@@ -141,7 +147,10 @@ const reducer = (state: State, action: Action): State => {
         },
         unstage: {
           value: false,
-          thought: '',
+          thought: {
+            text: '',
+            withOpportunity: false
+          },
         },
       };
     case ActionKind.setActiveCategory:
@@ -163,9 +172,11 @@ export const AlignCategoriesProvider = ({ children }) => {
 
   useEffect(() => {
     if (state.unstage.value) {
+      console.log('unstaging...');
       const allButOne = state.stage.thoughts.filter(
-        (thought) => thought.text !== state.unstage.thought
+        (thought) => thought.text !== state.unstage.thought.text
       );
+      console.log('allButOne: ', allButOne);
       dispatch({
         type: ActionKind.itemUnstaged,
         payload: {
@@ -173,7 +184,7 @@ export const AlignCategoriesProvider = ({ children }) => {
         },
       });
     }
-  }, [state.unstage]);
+  }, [state.unstage, state.stage]);
 
   useEffect(() => {
     if (state.submitStage) {
@@ -195,7 +206,7 @@ export const AlignCategoriesProvider = ({ children }) => {
       dispatch({
         type: ActionKind.stageSubmitted,
         payload: {
-          categories: [...allOldCategories, updatedCategory],
+          categories: [updatedCategory, ...allOldCategories],
         },
       });
     }
