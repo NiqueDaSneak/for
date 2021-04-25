@@ -9,7 +9,7 @@ import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { useFonts } from '../hooks/useFonts';
 import { useKeyboard } from '../hooks/useKeyboard';
 import { Question } from '../state/opportunities.context';
-import TextCard from './TextCard';
+import TextCard from './TextCards/TextCard';
 import { Text } from './Themed';
 import ToDoList from './ToDoList';
 import HowWouldYou from './HowWouldYou';

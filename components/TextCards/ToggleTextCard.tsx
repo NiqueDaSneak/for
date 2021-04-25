@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   PlatformColor,
   Pressable,
@@ -6,90 +6,14 @@ import {
   useColorScheme,
   Animated,
 } from 'react-native';
-import { AlignCategoriesContext } from '../state';
-import { Text, View } from './Themed';
+import { AlignCategoriesContext } from '../../state';
+import { View } from '../Themed';
 import * as Haptics from 'expo-haptics';
-import { DraxView } from 'react-native-drax';
-import type { Thought } from '../state/align-categories.context';
+import type { Thought } from '../../state/align-categories.context';
 import { Easing } from 'react-native-reanimated';
+import TextCard from './TextCard';
 
-const TextCard = ({ text }: { text: string }) => {
-  const colorScheme = useColorScheme();
-
-  const styles = StyleSheet.create({
-    cardContainer: {
-      minWidth: 210,
-      borderRadius: 10,
-      padding: '6%',
-      backgroundColor:
-        colorScheme === 'dark'
-          ? PlatformColor('systemGray5')
-          : PlatformColor('systemGray5'),
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 1,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.41,
-      elevation: 2,
-      maxWidth: '70%',
-      marginBottom: '6%',
-      minHeight: 66,
-    },
-  });
-
-  return (
-    <View style={[styles.cardContainer]}>
-      <Text>{text}</Text>
-    </View>
-  );
-};
-
-export const DraggableTextCard = ({
-  text,
-  receivingStyle,
-  payload,
-  onDragStart,
-  onReceiveDragDrop,
-}) => {
-  const colorScheme = useColorScheme();
-
-  const styles = StyleSheet.create({
-    cardContainer: {
-      borderRadius: 10,
-      padding: '6%',
-      backgroundColor:
-        colorScheme === 'dark'
-          ? PlatformColor('systemGray5')
-          : PlatformColor('systemGray5'),
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 1,
-      },
-      shadowOpacity: 0.2,
-      shadowRadius: 1.41,
-      elevation: 2,
-      width: '70%',
-      marginBottom: '6%',
-    },
-  });
-
-  return (
-    <DraxView
-      receivingStyle={receivingStyle}
-      payload={payload}
-      onDragStart={onDragStart}
-      onReceiveDragDrop={onReceiveDragDrop}
-      style={styles.cardContainer}
-    >
-      <Text>{text}</Text>
-    </DraxView>
-  );
-};
-
-export const ToggleTextCard = ({
+const ToggleTextCard = ({
   thought,
   isCategorizeActive,
   activeCategory,
@@ -133,8 +57,8 @@ export const ToggleTextCard = ({
 
   const getIcon = () => {
     return isChecked
-      ? require('../assets/images/checked.png')
-      : require('../assets/images/unchecked.png');
+      ? require('../../assets/images/checked.png')
+      : require('../../assets/images/unchecked.png');
   };
 
   const scaleRef = new Animated.Value(0);
@@ -161,15 +85,14 @@ export const ToggleTextCard = ({
         <Pressable
           onPress={() => {
             if (isChecked) {
-              console.log('unstage: ', acState.stage)
+              console.log('unstage: ', acState.stage);
               acDispatch({
                 type: 'UNSTAGE_ITEM',
                 payload: {
                   toBeUnstaged: thought,
                 },
               });
-              console.log('unstaged??? ', acState.stage)
-
+              console.log('unstaged??? ', acState.stage);
             } else {
               acState.stage.thoughts === 0
                 ? acDispatch({
@@ -207,4 +130,4 @@ export const ToggleTextCard = ({
   );
 };
 
-export default TextCard;
+export default ToggleTextCard;

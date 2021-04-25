@@ -2,16 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
   FlatList,
   PlatformColor,
-  Pressable,
   StyleSheet,
   useColorScheme,
-  ScrollView,
   Image,
 } from 'react-native';
 
 import { Text, View } from '../../components/Themed';
 import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
-import { ToggleTextCard } from '../../components/TextCard';
+import ToggleTextCard from '../../components/TextCards/ToggleTextCard';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import CategoryFooter from '../../components/CategoryFooter';
 import { useFonts } from '../../hooks/useFonts';
@@ -21,13 +19,12 @@ export default function AlignScreen() {
   const { responses, newResponses } = dtState;
   const colorScheme = useColorScheme();
 
-  const { keyboardHeight } = useKeyboard();
-
   const [isCategorizeActive, setIsCategorizeActive] = useState(false);
-  const [acState, acDispatch] = useContext(AlignCategoriesContext);
+  const [acState] = useContext(AlignCategoriesContext);
   const { activeCategory } = acState.stage;
 
   const { fontTypes } = useFonts();
+  
   const styles = StyleSheet.create({
     createThoughtButtonContainer: {
       height: '12%',

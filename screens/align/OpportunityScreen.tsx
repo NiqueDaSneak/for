@@ -7,7 +7,7 @@ import {
   useColorScheme,
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import TextCard from '../../components/TextCard';
+import TextCard from '../../components/TextCards/TextCard';
 import { View, Text } from '../../components/Themed';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { OpportunitiesContext } from '../../state';
