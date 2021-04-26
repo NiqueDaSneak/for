@@ -1,6 +1,8 @@
 import React, { useContext, useEffect } from 'react';
 import { createContext, useReducer } from 'react';
+import { AuthContext } from './auth.context';
 import { DigitalThoughtsContext } from './digital-thoughts.context';
+import { db } from '../firebase.js';
 
 export const AlignCategoriesContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE DIGITAL THOUGHT
@@ -8,20 +10,7 @@ export const AlignCategoriesContext = createContext();
 // THE CUSTOMER
 
 const initialState: State = {
-  categories: [
-    {
-      title: 'Health & Wellness',
-      thoughts: [],
-    },
-    {
-      title: 'Relationships',
-      thoughts: [],
-    },
-    {
-      title: 'Finances',
-      thoughts: [],
-    },
-  ],
+  categories: [],
   createCategory: {
     value: false,
     categoryText: '',
@@ -38,6 +27,7 @@ const initialState: State = {
     },
   },
   submitStage: false,
+  setDefaultCategories: false,
 };
 
 export type Thought = {
@@ -47,7 +37,8 @@ export type Thought = {
 
 export type Category = {
   title: string;
-  thoughts: [Thought] | [];
+  thoughts: Thought[] | [];
+  createdAt: number;
 };
 
 type State = {
@@ -68,6 +59,7 @@ type State = {
     };
   };
   submitStage: boolean;
+  setDefaultCategories: boolean;
 };
 
 enum ActionKind {
@@ -79,11 +71,13 @@ enum ActionKind {
   unstageItem = 'UNSTAGE_ITEM',
   itemUnstaged = 'ITEM_UNSTAGED',
   setActiveCategory = 'SET_ACTIVE_CATEGORY',
+  setDefaultCategories = 'SET_DEFAULT_CATEGORIES',
+  haveSetDefaultCategories = 'HAVE_SET_DEFAULT',
 }
 
 type Action = {
   type: ActionKind;
-  payload: any;
+  payload: any | undefined;
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -109,6 +103,7 @@ const reducer = (state: State, action: Action): State => {
         categories: [
           ...state.categories,
           {
+            createdAt: Date.now(),
             title: action.payload.text,
             thoughts: [],
           },
@@ -149,7 +144,7 @@ const reducer = (state: State, action: Action): State => {
           value: false,
           thought: {
             text: '',
-            withOpportunity: false
+            withOpportunity: false,
           },
         },
       };
@@ -166,17 +161,49 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-export const AlignCategoriesProvider = ({ children }) => {
+const AlignCategoriesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
+  const [authState, authDispatch] = useContext(AuthContext);
+
+  const setDefaultCategories = () => {
+    const defaultCategories = [
+      'Health & Wellness',
+      'Relationships',
+      'Finances',
+    ];
+
+    defaultCategories.forEach((category) => {
+      let newCategory = {
+        title: category,
+        thoughts: [],
+        createdAt: Date.now(),
+        userId: authState.activeUser.id,
+      };
+      db.collection('Categories').add(newCategory);
+    });
+    authDispatch({ type: 'NOT_NEW' });
+  };
+
+  useEffect(() => {
+    if (
+      authState.activeUser.newUser &&
+      authState.isAuthenticated &&
+      authState.activeUser.id
+    ) {
+      setDefaultCategories();
+    }
+  }, [
+    authState.activeUser.newUser,
+    authState.isAuthenticated,
+    authState.activeUser.id,
+  ]);
 
   useEffect(() => {
     if (state.unstage.value) {
-      console.log('unstaging...');
       const allButOne = state.stage.thoughts.filter(
         (thought) => thought.text !== state.unstage.thought.text
       );
-      console.log('allButOne: ', allButOne);
       dispatch({
         type: ActionKind.itemUnstaged,
         payload: {
@@ -217,3 +244,5 @@ export const AlignCategoriesProvider = ({ children }) => {
     </AlignCategoriesContext.Provider>
   );
 };
+
+export default AlignCategoriesProvider;

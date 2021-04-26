@@ -5,23 +5,26 @@ import React, {
   useRef,
   useCallback,
   useState,
-  Alert,
   useContext,
-  ReactChild,
-  ReactChildren,
   ReactNode,
 } from 'react';
-import {
-  FirebaseAuthApplicationVerifier,
-  FirebaseRecaptchaVerifier,
-  FirebaseRecaptchaVerifierModal,
-} from 'expo-firebase-recaptcha';
+import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import fb from 'firebase';
 import firebase, { db } from '../firebase.js';
 import { ModalContext } from './modal.context';
-import { event } from 'react-native-reanimated';
+import { AlignCategoriesContext } from './align-categories.context';
 
 export const AuthContext = createContext();
+
+type User = {
+  firebaseId: string;
+  id: string;
+  phone: string;
+  createdAt: number;
+  newUser: boolean;
+  // categories: Category[]
+};
+
 type State = {
   phoneLogin: {
     loggingIn: boolean;
@@ -30,12 +33,10 @@ type State = {
     verificationCode: string;
   };
   isAuthenticated: boolean;
-  activeUser: {
-    id: string;
-    phone: string;
-  };
+  activeUser: User;
   loggingOut: boolean;
   resetVerification: boolean;
+  notNewAnymore: boolean;
 };
 const initialState: State = {
   phoneLogin: {
@@ -47,10 +48,16 @@ const initialState: State = {
   isAuthenticated: false,
   activeUser: {
     id: '',
+    firebaseId: '',
     phone: '',
+    createdAt: '',
+    newUser: false,
+
+    // categories: []
   },
   loggingOut: false,
   resetVerification: false,
+  notNewAnymore: false,
 };
 
 enum ActionKind {
@@ -62,6 +69,8 @@ enum ActionKind {
   loggedOut = 'LOGGED_OUT',
   resetVerify = 'RESET_VERIFY',
   verifyHasReset = 'VERIFY_HAS_RESET',
+  notNewAnymore = 'NOT_NEW',
+  setOldUser = 'SET_OLD',
 }
 
 type Action = {
@@ -123,7 +132,11 @@ const reducer = (state: State, action: Action): State => {
         loggingOut: false,
         activeUser: {
           id: '',
+          firebaseId: '',
           phone: '',
+          createdAt: '',
+          newUser: false,
+          // categories: []
         },
       };
     case ActionKind.resetVerify:
@@ -136,7 +149,20 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         resetVerification: false,
       };
-
+    case ActionKind.notNewAnymore:
+      return {
+        ...state,
+        notNewAnymore: true,
+      };
+    case ActionKind.setOldUser:
+      return {
+        ...state,
+        notNewAnymore: false,
+        activeUser: {
+          ...state.activeUser,
+          newUser: false,
+        },
+      };
     default:
       throw new Error();
   }
@@ -148,9 +174,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     firebaseVerificationResponse,
     setFirebaseVerificationResponse,
   ] = useState('');
+
   const [modalState, modalDispatch] = useContext(ModalContext);
 
   const [state, dispatch] = useReducer(reducer, initialState);
+  // const [acState, acDispatch] = useContext(AlignCategoriesContext);
 
   const confirmCode = useCallback(
     () =>
@@ -160,6 +188,15 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
       ),
     [firebaseVerificationResponse, state.phoneLogin.verificationCode]
   );
+
+  useEffect(() => {
+    if (state.notNewAnymore && state.activeUser.id !== '') {
+      dispatch({ type: ActionKind.setOldUser });
+      db.collection('Users')
+        .doc(state.activeUser.id)
+        .update({ newUser: false });
+    }
+  }, [state.notNewAnymore, state.activeUser.id]);
 
   useEffect(() => {
     if (state.loggingOut) {
@@ -235,31 +272,29 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         .signInWithCredential(credential)
         .then((result) => {
           if (result.additionalUserInfo.isNewUser) {
-            const newUser = {
+            const newUser: User = {
+              id: '',
               firebaseId: result.user.uid,
               phone: result.user.phoneNumber,
+              createdAt: Date.now(),
+              newUser: true,
             };
             db.collection('Users')
               .add(newUser)
               .then((docRef) => {
-                db.collection('Users')
-                  .doc(docRef.id)
-                  .update({ id: docRef.id })
-                  .then(() => {
-                    dispatch({
-                      type: ActionKind.loginUser,
-                      payload: {
-                        user: {
-                          id: docRef.id,
-                          phone: result.user.phoneNumber,
-                        },
-                      },
-                    });
-                    modalDispatch({
-                      type: 'OPEN',
-                      modalType: 'SHOW_NEW_HELP',
-                    });
-                  });
+                dispatch({
+                  type: ActionKind.loginUser,
+                  payload: {
+                    user: {
+                      ...newUser,
+                      id: docRef.id,
+                    },
+                  },
+                });
+                modalDispatch({
+                  type: 'OPEN',
+                  modalType: 'SHOW_NEW_HELP',
+                });
               });
           }
         });
