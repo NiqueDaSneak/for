@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "for",
-    "slug": "for",
+    "name": "for3",
+    "slug": "for3",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -35,6 +35,7 @@
         "appId": "1:142525087884:web:e999aedd87ce13ba4d7ba9",
         "measurementId": "G-TPVZ1S4FSW"
       }
-    }
+    },
+    "description": ""
   }
 }
