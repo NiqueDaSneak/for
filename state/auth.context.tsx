@@ -17,7 +17,7 @@ import { AlignCategoriesContext } from './align-categories.context';
 export const AuthContext = createContext();
 
 type User = {
-  firebaseId: string;
+  authId: string;
   id: string;
   phone: string;
   createdAt: number;
@@ -48,9 +48,9 @@ const initialState: State = {
   isAuthenticated: false,
   activeUser: {
     id: '',
-    firebaseId: '',
+    authId: '',
     phone: '',
-    createdAt: '',
+    createdAt: 0,
     newUser: false,
 
     // categories: []
@@ -132,9 +132,9 @@ const reducer = (state: State, action: Action): State => {
         loggingOut: false,
         activeUser: {
           id: '',
-          firebaseId: '',
+          authId: '',
           phone: '',
-          createdAt: '',
+          createdAt: 0,
           newUser: false,
           // categories: []
         },
@@ -210,7 +210,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         console.log('The user is logged in', user.phoneNumber, user.uid);
         try {
           db.collection('Users')
-            .where('firebaseId', '==', user.uid)
+            .where('authId', '==', user.uid)
             .get()
             .then((snapshot) => {
               snapshot.forEach((userDoc) => {
@@ -230,7 +230,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: ActionKind.loggedOut });
       }
     });
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     onAuthStateChange();
@@ -274,7 +274,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
           if (result.additionalUserInfo.isNewUser) {
             const newUser: User = {
               id: '',
-              firebaseId: result.user.uid,
+              authId: result.user.uid,
               phone: result.user.phoneNumber,
               createdAt: Date.now(),
               newUser: true,
@@ -295,6 +295,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
                   type: 'OPEN',
                   modalType: 'SHOW_NEW_HELP',
                 });
+                db.collection('Users').doc(docRef.id).update({ id: docRef.id });
               });
           }
         });
