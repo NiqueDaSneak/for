@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   PlatformColor,
   StyleSheet,
@@ -19,23 +19,36 @@ import { Category, Thought } from '../../state/align-categories.context';
 import { Opportunity } from '../../state/opportunities.context';
 import { DraxProvider } from 'react-native-drax';
 import OpportunityCard from '../../components/TextCards/OpportunityCard';
+import { getThought } from '../../state/digital-thoughts.context';
+
 const CategoryScreen = ({ navigation, route }) => {
   const colorScheme = useColorScheme();
-  const { routeTitle } = route.params;
+  const { categoryId } = route.params;
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
   const [oState, oDispatch] = useContext(OpportunitiesContext);
   const [mState, mDispatch] = useContext(ModalContext);
-
+  const [currentCategoryThoughts, setCurrentCategoryThoughts] = useState([])
   const { opportunities } = oState;
   const { categories } = acState;
 
   const currentCategory = categories?.filter(
-    (category: Category) => category.title === routeTitle
+    (category: Category) => category.id === categoryId
   )[0];
   useEffect(() => {
-    navigation.setOptions({ title: `${routeTitle}` });
+    navigation.setOptions({ title: `${currentCategory.title}` });
   }, []);
 
+
+  useEffect(() => {
+    currentCategory.thoughts.forEach((id: string) => {
+      console.log('id: ', id)
+      getThought(id).then(thought => {
+          setCurrentCategoryThoughts(arr => [...arr, thought.data()])
+       })
+    })
+}, [currentCategory.thoughts])
+  
+  // FETCH EACH THOUGHT VIA THE IDS BELOW
   const styles = StyleSheet.create({
     contentContainer: {
       alignItems: 'center',
@@ -48,11 +61,11 @@ const CategoryScreen = ({ navigation, route }) => {
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <DraxProvider>
-        {currentCategory.thoughts.map((thought: Thought) => (
-          <React.Fragment key={thought.text}>
-            {!thought.withOpportunity && (
+        {currentCategoryThoughts.map((thought: Thought) => (
+          <React.Fragment key={thought?.text}>
+            {!thought?.withOpportunity && (
               <DraggableTextCard
-                text={thought.text}
+                text={thought?.text}
                 receivingStyle={{
                   backgroundColor: PlatformColor('systemGray'),
                 }}
