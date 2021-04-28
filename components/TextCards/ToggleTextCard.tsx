@@ -27,6 +27,7 @@ const ToggleTextCard = ({
   const [isChecked, setIsChecked] = useState(false);
 
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
+
   const styles = StyleSheet.create({
     container: {
       marginBottom: '10%',
@@ -89,7 +90,7 @@ const ToggleTextCard = ({
               acDispatch({
                 type: 'UNSTAGE_ITEM',
                 payload: {
-                  toBeUnstaged: thought,
+                  toBeUnstaged: thought.id,
                 },
               });
               console.log('unstaged??? ', acState.stage);
@@ -98,14 +99,14 @@ const ToggleTextCard = ({
                 ? acDispatch({
                     type: 'NEW_STAGE',
                     payload: {
-                      toBeStaged: thought,
+                      toBeStaged: thought.id,
                       category: activeCategory,
                     },
                   })
                 : acDispatch({
                     type: 'STAGE_ITEM',
                     payload: {
-                      toBeStaged: thought,
+                      toBeStaged: thought.id,
                     },
                   });
             }
