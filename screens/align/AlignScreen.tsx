@@ -16,7 +16,7 @@ import { useFonts } from '../../hooks/useFonts';
 
 export default function AlignScreen() {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
-  const { responses, newResponses } = dtState;
+  const { thoughts, newResponses } = dtState;
   const colorScheme = useColorScheme();
 
   const [isCategorizeActive, setIsCategorizeActive] = useState(false);
@@ -77,7 +77,7 @@ export default function AlignScreen() {
         darkColor={PlatformColor('systemGray6').toString()}
         style={styles.mainContainer}
       >
-        {responses.length === 0 ? (
+        {thoughts.length === 0 ? (
           <>
             <Image
               resizeMode="contain"
@@ -105,7 +105,7 @@ export default function AlignScreen() {
           </>
         ) : (
           <FlatList
-            data={responses}
+            data={thoughts.filter(thought => !thought.categorized)}
             contentContainerStyle={styles.responsesContentContainer}
             renderItem={({ item, index }) => {
               return (
