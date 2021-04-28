@@ -1,8 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { createContext, useReducer } from 'react';
 import { AuthContext } from './auth.context';
-import { DigitalThoughtsContext } from './digital-thoughts.context';
-import { db } from '../firebase.js';
+import { DigitalThoughtsContext, Thought } from './digital-thoughts.context';
+import firebase, { db } from '../firebase.js';
 
 export const AlignCategoriesContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE DIGITAL THOUGHT
@@ -28,11 +28,6 @@ const initialState: State = {
   },
   submitStage: false,
   setDefaultCategories: false,
-};
-
-export type Thought = {
-  text: string;
-  withOpportunity: boolean;
 };
 
 export type Category = {
@@ -73,6 +68,7 @@ enum ActionKind {
   setActiveCategory = 'SET_ACTIVE_CATEGORY',
   setDefaultCategories = 'SET_DEFAULT_CATEGORIES',
   haveSetDefaultCategories = 'HAVE_SET_DEFAULT',
+  setCategories = 'SET_CATEGORIES',
 }
 
 type Action = {
@@ -91,7 +87,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         submitStage: false,
-        categories: action.payload.categories,
+        // categories: action.payload.categories,
         stage: {
           thoughts: [],
           activeCategory: '',
@@ -156,6 +152,11 @@ const reducer = (state: State, action: Action): State => {
           activeCategory: action.payload.category,
         },
       };
+    case ActionKind.setCategories:
+      return {
+        ...state,
+        categories: action.payload.categories,
+      };
     default:
       throw new Error();
   }
@@ -184,6 +185,29 @@ const AlignCategoriesProvider = ({ children }) => {
     });
     authDispatch({ type: 'NOT_NEW' });
   };
+  const fetchCategories = useCallback(() => {
+    try {
+      db.collection('Categories')
+        .where('userId', '==', authState.activeUser.id)
+        .onSnapshot((querySnapshot) => {
+          let categories: Category[] = [];
+          querySnapshot.forEach((doc) => {
+            categories.push({ id: doc.id, ...doc.data() });
+          });
+          dispatch({
+            type: ActionKind.setCategories,
+            payload: { categories: categories },
+          });
+        });
+    } catch (error) {
+      console.log('err: ', error);
+    }
+  }, [authState.activeUser.id]);
+
+  useEffect(() => {
+    fetchCategories();
+    return () => fetchCategories();
+  }, [fetchCategories]);
 
   useEffect(() => {
     if (
@@ -202,7 +226,7 @@ const AlignCategoriesProvider = ({ children }) => {
   useEffect(() => {
     if (state.unstage.value) {
       const allButOne = state.stage.thoughts.filter(
-        (thought) => thought.text !== state.unstage.thought.text
+        (thought) => thought !== state.unstage.thought
       );
       dispatch({
         type: ActionKind.itemUnstaged,
@@ -215,26 +239,19 @@ const AlignCategoriesProvider = ({ children }) => {
 
   useEffect(() => {
     if (state.submitStage) {
-      const matchedCategory = state.categories.filter(
-        (category) => category.title === state.stage.activeCategory
-      )[0];
-      const updatedCategory = {
-        ...matchedCategory,
-        thoughts: [...matchedCategory.thoughts, ...state.stage.thoughts],
-      };
-
-      const allOldCategories = state.categories.filter(
-        (category) => category.title !== updatedCategory.title
-      );
+      db.collection('Categories')
+        .doc(state.stage.activeCategory)
+        .update({
+          thoughts: firebase.firestore.FieldValue.arrayUnion(
+            ...state.stage.thoughts
+          ),
+        });
       dtDispatch({
         type: 'CATEGORIZED',
         thoughts: state.stage.thoughts,
       });
       dispatch({
         type: ActionKind.stageSubmitted,
-        payload: {
-          categories: [updatedCategory, ...allOldCategories],
-        },
       });
     }
   }, [state.submitStage]);
