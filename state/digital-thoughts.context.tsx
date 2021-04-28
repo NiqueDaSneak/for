@@ -1,13 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 import { createContext, useReducer } from 'react';
-import { Thought } from './align-categories.context';
+import { db } from '../firebase.js';
+import { AuthContext } from './auth.context';
 
 export const DigitalThoughtsContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE ALIGN CATEGORIES
 // CONTEXT IS THIS ONE IS ABOUT PROCESSING THE ANSWERS HOWEVER
 // THAT MAY EVOLVE
-const initialState = {
-  responses: [],
+
+export type Thought = {
+  userId: string;
+  text: string;
+  categorized: boolean;
+  withOpportunity: boolean;
+};
+
+type State = {
+  thoughts: Thought[];
+  consumeResponse: {
+    value: boolean;
+    response: string;
+  };
+  newResponses: boolean;
+  removeThoughts: {
+    value: boolean;
+    thoughts: Thought[];
+  };
+};
+
+const initialState: State = {
+  thoughts: [],
   consumeResponse: {
     value: false,
     response: '',
@@ -15,13 +37,26 @@ const initialState = {
   newResponses: false,
   removeThoughts: {
     value: false,
-    thoughts: null,
+    thoughts: [],
   },
 };
 
-const reducer = (state, action) => {
+enum ActionKind {
+  consumeAnswer = 'CONSUME_ANSWER',
+  setResponses = 'SET_RESPONSES',
+  newSeen = 'NEW_SEEN',
+  categorized = 'CATEGORIZED',
+  removedThoughts = 'REMOVED_THOUGHTS',
+}
+
+type Action = {
+  type: ActionKind;
+  payload: any | undefined;
+};
+
+const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'CONSUME_ANSWER':
+    case ActionKind.consumeAnswer:
       return {
         ...state,
         newResponses: true,
@@ -30,21 +65,21 @@ const reducer = (state, action) => {
           response: action.questionResponse,
         },
       };
-    case 'SET_RESPONSES':
+    case ActionKind.setResponses:
       return {
         ...state,
-        responses: action.responses,
+        thoughts: action.payload.thoughts,
         consumeResponse: {
           value: false,
           response: '',
         },
       };
-    case 'NEW_SEEN':
+    case ActionKind.newSeen:
       return {
         ...state,
         newResponses: false,
       };
-    case 'CATEGORIZED':
+    case ActionKind.categorized:
       return {
         ...state,
         removeThoughts: {
@@ -52,11 +87,11 @@ const reducer = (state, action) => {
           thoughts: action.thoughts,
         },
       };
-    case 'REMOVED_THOUGHTS':
+    case ActionKind.removedThoughts:
       return {
         ...state,
-        responses: action.responses,
-        removeThought: {
+        thoughts: action.responses,
+        removeThoughts: {
           value: false,
           thought: null,
         },
@@ -66,18 +101,53 @@ const reducer = (state, action) => {
   }
 };
 
+export const getThought = (id) => {
+  return db.collection('Thoughts').doc(id).get();
+};
+
 export const DigitalThoughtsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [authState, authDispatch] = useContext(AuthContext);
 
+  // this is where the magic happens
   const processResponse = async (response: string) => {
     const processedResponse = response.split('. ').filter(Boolean);
-    let responsesAsObjects:Thought[] = []
-    processedResponse.forEach(thought => responsesAsObjects.push({text: thought, withOpportunity: false}))
-    dispatch({
-      type: 'SET_RESPONSES',
-      responses: [...responsesAsObjects, ...state.responses, ],
+    let responsesAsObjects: Thought[] = [];
+    processedResponse.forEach((thought) => {
+      db.collection('Thoughts').add({
+        text: thought,
+        withOpportunity: false,
+        categorized: false,
+        userId: authState.activeUser.id,
+      });
     });
   };
+
+  const fetchThoughts = useCallback(() => {
+    try {
+      db.collection('Thoughts')
+        .where('userId', '==', authState.activeUser.id)
+        .onSnapshot((querySnapshot) => {
+          let thoughts: Thought[] = [];
+          querySnapshot.forEach((doc) => {
+            thoughts.push({ id: doc.id, ...doc.data() });
+          });
+          dispatch({
+            type: ActionKind.setResponses,
+            payload: {
+              thoughts: thoughts,
+            },
+          });
+        });
+    } catch (error) {
+      console.log('error: ', error);
+    }
+  }, [authState.activeUser.id]);
+
+  useEffect(() => {
+    fetchThoughts();
+    return () => fetchThoughts();
+  }, [fetchThoughts]);
 
   useEffect(() => {
     if (state.consumeResponse.value) {
@@ -87,15 +157,8 @@ export const DigitalThoughtsProvider = ({ children }) => {
 
   useEffect(() => {
     if (state.removeThoughts.value) {
-      let saveTheseAfterManip = state.responses;
       state.removeThoughts.thoughts.forEach((thought) => {
-        let index = saveTheseAfterManip.findIndex((item) => item === thought);
-        saveTheseAfterManip.splice(index, 1);
-      });
-
-      dispatch({
-        type: 'REMOVED_THOUGHTS',
-        responses: saveTheseAfterManip,
+        db.collection('Thoughts').doc(thought).update({ categorized: true });
       });
     }
   }, [state.removeThoughts]);
