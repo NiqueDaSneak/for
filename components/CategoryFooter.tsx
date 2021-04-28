@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/core';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as Haptics from 'expo-haptics';
 import { useFonts } from '../hooks/useFonts';
+import { Category } from '../state/align-categories.context';
 
 type Props = {
   isCategorizeActive: (val: boolean) => void;
@@ -24,7 +25,6 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
 
   const { categories } = acState;
-
   const navigation = useNavigation();
 
   const [controlIndex, setControlIndex] = useState(0);
@@ -42,11 +42,12 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
       }, 900);
     }
   }, [confirmed]);
+
   useEffect(() => {
     acDispatch({
       type: 'SET_ACTIVE_CATEGORY',
       payload: {
-        category: categories[selectedIndex].title,
+        category: categories[selectedIndex]?.id,
       },
     });
   }, [selectedIndex]);
@@ -143,7 +144,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
               acDispatch({
                 type: 'SET_ACTIVE_CATEGORY',
                 payload: {
-                  category: categories[selectedIndex].title,
+                  category: categories[selectedIndex]?.title,
                 },
               });
             }
@@ -190,13 +191,13 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
           contentContainerStyle={styles.scrollContentContainer}
           style={styles.scrollView}
         >
-          {categories.map((category: { title: string }, index: number) => (
+          {categories.map((category:Category, index: number) => (
             <React.Fragment key={index}>
               {controlIndex === 0 && (
                 <Pressable
                   onPress={() => {
                     return navigation.navigate('CategoryScreen', {
-                      routeTitle: category.title,
+                      categoryId: category.id,
                     });
                   }}
                 >
