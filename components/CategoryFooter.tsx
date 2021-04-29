@@ -10,19 +10,21 @@ import {
   View as ContainerView,
   Animated,
 } from 'react-native';
-import { AlignCategoriesContext } from '../state';
+import { AlignCategoriesContext, AuthContext } from '../state';
 import { Text, View } from '../components/Themed';
 import { useNavigation } from '@react-navigation/core';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import * as Haptics from 'expo-haptics';
 import { useFonts } from '../hooks/useFonts';
-import { Category } from '../state/align-categories.context';
+import { Category, createCategory } from '../state/align-categories.context';
 
 type Props = {
   isCategorizeActive: (val: boolean) => void;
 };
 const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
+
+  const [authState, authDispatch] = useContext(AuthContext);
 
   const { categories } = acState;
   const navigation = useNavigation();
@@ -171,12 +173,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                 {
                   text: 'Save',
                   onPress: (text) =>
-                    acDispatch({
-                      type: 'NEW_CATEGORY',
-                      payload: {
-                        text: text,
-                      },
-                    }),
+                    createCategory(text, authState.activeUser.id)
                 },
               ]
             );

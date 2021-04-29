@@ -61,7 +61,6 @@ type State = {
 enum ActionKind {
   submitStage = 'SUBMIT_STAGE',
   stageSubmitted = 'STAGE_SUBMITTED',
-  newCategory = 'NEW_CATEGORY',
   newStage = 'NEW_STAGE',
   stageItem = 'STAGE_ITEM',
   unstageItem = 'UNSTAGE_ITEM',
@@ -88,23 +87,10 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         submitStage: false,
-        // categories: action.payload.categories,
         stage: {
           thoughts: [],
           activeCategory: '',
         },
-      };
-    case ActionKind.newCategory:
-      return {
-        ...state,
-        categories: [
-          ...state.categories,
-          {
-            createdAt: Date.now(),
-            title: action.payload.text,
-            thoughts: [],
-          },
-        ],
       };
     case ActionKind.newStage:
       return {
@@ -162,6 +148,16 @@ const reducer = (state: State, action: Action): State => {
       throw new Error();
   }
 };
+
+export const createCategory = (title: string, userId) => {
+  let newCategory = {
+    title: title,
+    thoughts: [],
+    createdAt: Date.now(),
+    userId: userId,
+  };
+  db.collection('Categories').add(newCategory);
+}
 
 const AlignCategoriesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
