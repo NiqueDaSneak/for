@@ -1,6 +1,14 @@
-import React, { useReducer, createContext, useEffect } from 'react';
+import React, {
+  useReducer,
+  createContext,
+  useEffect,
+  useContext,
+  useCallback,
+} from 'react';
 import { Alert } from 'react-native';
-import type { Thought } from './align-categories.context';
+import { db } from '../firebase';
+import { AuthContext } from './auth.context';
+import { Thought, setWithOpportunity } from './digital-thoughts.context';
 
 export const OpportunitiesContext = createContext();
 
@@ -14,6 +22,7 @@ export type Opportunity = {
   thoughts: Thought[];
   categoryTitle: string;
   questions: Question[];
+  categoryId: string;
 };
 
 type State = {
@@ -22,7 +31,7 @@ type State = {
     value: boolean;
     data: {
       thoughts: Thought[];
-      category: string;
+      categoryId: string;
     };
   };
   addQuestion: {
@@ -36,7 +45,7 @@ const initialState: State = {
     value: false,
     data: {
       thoughts: [],
-      category: ''
+      categoryId: '',
     },
   },
   addQuestion: {
@@ -48,9 +57,9 @@ const initialState: State = {
 enum ActionKind {
   creatingOpportunity = 'CREATING',
   waitingForCreate = 'WAITING_FOR_CREATE',
-  createOpportunity = 'CREATE',
   addQuestion = 'ADD_QUESTION',
   addedQuestion = 'ADDED_QUESTION',
+  setOpportunities = 'SET_OPPORTUNITIES',
 }
 
 type Action = {
@@ -76,19 +85,6 @@ const reducer = (state: State, action: Action): State => {
           data: state.creating.data,
         },
       };
-    case ActionKind.createOpportunity:
-      return {
-        ...state,
-        opportunities: [
-          ...state.opportunities,
-          {
-            title: action.payload.title,
-            thoughts: [...action.payload.thoughts],
-            categoryTitle: action.payload.categoryTitle,
-            questions: [],
-          },
-        ],
-      };
     case ActionKind.addQuestion:
       return {
         ...state,
@@ -106,6 +102,11 @@ const reducer = (state: State, action: Action): State => {
         },
         opportunities: action.payload.allOpportunities,
       };
+    case ActionKind.setOpportunities:
+      return {
+        ...state,
+        opportunities: [...action.payload.opportunities],
+      };
     default:
       throw new Error();
   }
@@ -113,6 +114,31 @@ const reducer = (state: State, action: Action): State => {
 
 export const OpportunitiesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const [authState, authDispatch] = useContext(AuthContext);
+
+  const fetchOpportunities = useCallback(() => {
+    try {
+      db.collection('Opportunities')
+        .where('userId', '==', authState.activeUser.id)
+        .onSnapshot((querySnapshot) => {
+          let opportunities: Opportunity[] = [];
+          querySnapshot.forEach((doc) => {
+            opportunities.push({ id: doc.id, ...doc.data() });
+          });
+          dispatch({
+            type: ActionKind.setOpportunities,
+            payload: { opportunities: opportunities },
+          });
+        });
+    } catch (error) {
+      console.log('err: ', error);
+    }
+  }, [authState.activeUser.id]);
+
+  useEffect(() => {
+    fetchOpportunities();
+    return () => fetchOpportunities();
+  }, [fetchOpportunities]);
 
   useEffect(() => {
     if (state.creating.value) {
@@ -126,15 +152,28 @@ export const OpportunitiesProvider = ({ children }) => {
           },
           {
             text: 'Save',
-            onPress: (text) =>
-              dispatch({
-                type: ActionKind.createOpportunity,
-                payload: {
-                  title: text,
-                  thoughts: [...state.creating.data.thoughts],
-                  categoryTitle: state.creating.data.category
-                },
-              }),
+            onPress: (text) => {
+              const getThoughtIds = (): string[] => {
+                let ids: string[] = [];
+                state.creating.data.thoughts.forEach((thought: Thought) =>
+                  ids.push(thought.id)
+                );
+                return ids;
+              };
+
+              const newOpportunity = {
+                userId: authState.activeUser.id,
+                createdAt: Date.now(),
+                title: text,
+                thoughts: getThoughtIds(),
+                categoryId: state.creating.data.categoryId,
+                questions: [],
+              };
+              db.collection('Opportunities').add(newOpportunity);
+              getThoughtIds().forEach((id) => {
+                setWithOpportunity(id);
+              });
+            },
           },
         ]
       );
@@ -192,7 +231,6 @@ export const OpportunitiesProvider = ({ children }) => {
               },
             ],
           };
-
           break;
         case 'HOW':
           updatedOpportunity = {
