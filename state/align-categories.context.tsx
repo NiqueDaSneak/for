@@ -31,6 +31,7 @@ const initialState: State = {
 };
 
 export type Category = {
+  id: string;
   title: string;
   thoughts: Thought[] | [];
   createdAt: number;
@@ -185,6 +186,7 @@ const AlignCategoriesProvider = ({ children }) => {
     });
     authDispatch({ type: 'NOT_NEW' });
   };
+
   const fetchCategories = useCallback(() => {
     try {
       db.collection('Categories')
