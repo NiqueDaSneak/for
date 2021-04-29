@@ -59,6 +59,7 @@ const CategoryScreen = ({ navigation, route }) => {
       backgroundColor:
         colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f5f5f5',
       paddingTop: '10%',
+      minHeight: '100%'
     },
   });
 
@@ -88,10 +89,10 @@ const CategoryScreen = ({ navigation, route }) => {
             )}
           </React.Fragment>
         ))}
-      </DraxProvider>
       {shownOpportunities.map((opportunity: Opportunity) => (
         <OpportunityCard key={opportunity.title} opportunity={opportunity} />
       ))}
+      </DraxProvider>
     </ScrollView>
   );
 };
