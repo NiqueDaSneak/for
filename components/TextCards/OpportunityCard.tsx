@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/core';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import {
   PlatformColor,
@@ -10,12 +11,9 @@ import {
 import { Opportunity } from '../../state/opportunities.context';
 import { Text } from '../Themed';
 
-const OpportunityCard = ({
-  navigation,
-  opportunity,
-}: {
-  opportunity: Opportunity;
-}) => {
+const OpportunityCard = ({ opportunity }: { opportunity: Opportunity }) => {
+  const navigation = useNavigation();
+
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -58,7 +56,7 @@ const OpportunityCard = ({
       key={opportunity?.title}
       onPress={() =>
         navigation.navigate('OpportunityScreen', {
-          title: opportunity.title,
+          opportunityId: opportunity.id,
         })
       }
       style={styles.pressable}

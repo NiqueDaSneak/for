@@ -3,12 +3,17 @@
   "parserOptions": {
       "ecmaVersion": 2021
   },
+  "plugins": [    
+    "react-hooks"
+  ],
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
     ],
     "rules": {
+      "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+      "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
       "indent": ["error", 2],
       "no-inline-comments": "error",
       "react/jsx-first-prop-new-line": "error",

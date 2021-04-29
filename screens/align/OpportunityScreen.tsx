@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useCallback, useState } from 'react';
 import {
   Image,
   PlatformColor,
@@ -13,18 +13,40 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { OpportunitiesContext } from '../../state';
 import OpportunityQuestions from '../../components/OpportunityQuestions';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import { Opportunity } from '../../state/opportunities.context';
+import { getOpportunity, Opportunity } from '../../state/opportunities.context';
+import { getThought, Thought } from '../../state/digital-thoughts.context';
 
 const OpportunityScreen = ({ route }) => {
   const colorScheme = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
-  const { title } = route.params;
+  const { opportunityId } = route.params;
   const [oState, oDispatch] = useContext(OpportunitiesContext);
-  const opportunity = oState.opportunities.filter(
-    (opp: Opportunity) => opp.title === title
-    )[0];
-    console.log('title: ', title)
-    console.log('opportunity: ', opportunity.thoughts)
+  const [opportunity, setOpportunity] = useState<Opportunity>();
+  const [thoughts, setThoughts] = useState([]);
+
+  const updateOpportunity = useCallback(() => {
+    getOpportunity(opportunityId).then((opportunity: Opportunity) => {
+      setOpportunity(opportunity);
+    });
+  }, [getOpportunity, setOpportunity]);
+
+  useEffect(() => {
+    updateOpportunity();
+    return () => updateOpportunity;
+  }, [updateOpportunity]);
+
+  const getThoughts = useCallback(() => {
+    opportunity?.thoughts.forEach((thoughtId) => {
+      getThought(thoughtId).then((thought) => {
+        setThoughts((arr) => [...arr, thought.data()]);
+      });
+    });
+  }, [opportunity?.thoughts, getThought, setThoughts]);
+
+  useEffect(() => {
+    getThoughts();
+    return () => getThoughts;
+  }, [getThoughts]);
 
   const styles = StyleSheet.create({
     container: {
@@ -74,8 +96,8 @@ const OpportunityScreen = ({ route }) => {
     >
       <FlatList
         keyExtractor={(item) => item.text}
-        data={opportunity?.thoughts}
-        renderItem={({ item: thought }) => <TextCard text={thought          } />}
+        data={thoughts}
+        renderItem={({ item: thought }) => <TextCard text={thought?.text} />}
         contentContainerStyle={styles.oppContainer}
       />
       {opportunity?.questions?.length === 0 ? (

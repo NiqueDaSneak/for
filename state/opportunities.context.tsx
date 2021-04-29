@@ -18,6 +18,7 @@ export type Question = {
 };
 
 export type Opportunity = {
+  id: string;
   title: string;
   thoughts: Thought[];
   categoryTitle: string;
@@ -110,6 +111,18 @@ const reducer = (state: State, action: Action): State => {
     default:
       throw new Error();
   }
+};
+
+export const getOpportunity = async (id: string): Promise<Opportunity> => {
+  let opportunity: Opportunity[] = [];
+  await db
+    .collection('Opportunities')
+    .doc(id)
+    .get()
+    .then((doc) => {
+      opportunity.push(doc.data());
+    });
+  return opportunity[0];
 };
 
 export const OpportunitiesProvider = ({ children }) => {

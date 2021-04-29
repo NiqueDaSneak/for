@@ -86,14 +86,12 @@ const ToggleTextCard = ({
         <Pressable
           onPress={() => {
             if (isChecked) {
-              console.log('unstage: ', acState.stage);
               acDispatch({
                 type: 'UNSTAGE_ITEM',
                 payload: {
                   toBeUnstaged: thought.id,
                 },
               });
-              console.log('unstaged??? ', acState.stage);
             } else {
               acState.stage.thoughts === 0
                 ? acDispatch({
