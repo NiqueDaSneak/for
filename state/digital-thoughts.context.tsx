@@ -9,6 +9,7 @@ export const DigitalThoughtsContext = createContext();
 // THAT MAY EVOLVE
 
 export type Thought = {
+  id: string;
   userId: string;
   text: string;
   categorized: boolean;
@@ -43,10 +44,9 @@ const initialState: State = {
 
 enum ActionKind {
   consumeAnswer = 'CONSUME_ANSWER',
-  setResponses = 'SET_RESPONSES',
+  setThoughts = 'SET_RESPONSES',
   newSeen = 'NEW_SEEN',
   categorized = 'CATEGORIZED',
-  removedThoughts = 'REMOVED_THOUGHTS',
 }
 
 type Action = {
@@ -62,10 +62,10 @@ const reducer = (state: State, action: Action): State => {
         newResponses: true,
         consumeResponse: {
           value: true,
-          response: action.questionResponse,
+          response: action.payload.questionResponse,
         },
       };
-    case ActionKind.setResponses:
+    case ActionKind.setThoughts:
       return {
         ...state,
         thoughts: action.payload.thoughts,
@@ -84,16 +84,7 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         removeThoughts: {
           value: true,
-          thoughts: action.thoughts,
-        },
-      };
-    case ActionKind.removedThoughts:
-      return {
-        ...state,
-        thoughts: action.responses,
-        removeThoughts: {
-          value: false,
-          thought: null,
+          thoughts: action.payload.thoughts,
         },
       };
     default:
@@ -101,8 +92,12 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-export const getThought = (id) => {
+export const getThought = (id: string) => {
   return db.collection('Thoughts').doc(id).get();
+};
+
+export const setWithOpportunity = (id: string) => {
+  return db.collection('Thoughts').doc(id).update({ withOpportunity: true });
 };
 
 export const DigitalThoughtsProvider = ({ children }) => {
@@ -133,7 +128,7 @@ export const DigitalThoughtsProvider = ({ children }) => {
             thoughts.push({ id: doc.id, ...doc.data() });
           });
           dispatch({
-            type: ActionKind.setResponses,
+            type: ActionKind.setThoughts,
             payload: {
               thoughts: thoughts,
             },

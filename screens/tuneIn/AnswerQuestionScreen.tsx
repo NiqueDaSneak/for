@@ -27,7 +27,7 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
   const [qState, qDispatch] = useContext(QuestionsContext);
 
   const handleSave = () => {
-    dtDispatch({ type: 'CONSUME_ANSWER', questionResponse });
+    dtDispatch({ type: 'CONSUME_ANSWER', payload: { questionResponse } });
 
     let answeredQuestionData = {
       ...questionData,

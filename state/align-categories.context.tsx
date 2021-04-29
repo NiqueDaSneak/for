@@ -250,7 +250,9 @@ const AlignCategoriesProvider = ({ children }) => {
         });
       dtDispatch({
         type: 'CATEGORIZED',
-        thoughts: state.stage.thoughts,
+        payload: {
+          thoughts: state.stage.thoughts,
+        },
       });
       dispatch({
         type: ActionKind.stageSubmitted,
