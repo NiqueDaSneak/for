@@ -9,6 +9,7 @@ import {
   PlatformColor,
   Pressable,
   Keyboard,
+  useColorScheme,
 } from 'react-native';
 import { Text } from '../Themed';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
@@ -17,6 +18,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TextInput } from 'react-native-gesture-handler';
 import { useKeyboard } from '../../hooks/useKeyboard';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const GoalCreationModal = ({
   visible,
@@ -32,9 +34,10 @@ const GoalCreationModal = ({
   const [remindText, setRemindText] = useState('Morning');
   const [date, setDate] = useState(new Date());
 
-  // unsure for typescript
   const inputRef = useRef();
   const { keyboardOpen } = useKeyboard();
+
+  const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
     segmentedControl: {
@@ -48,7 +51,9 @@ const GoalCreationModal = ({
     },
     contentContainer: {
       width: '100%',
-      height: '70%',
+      height: '100%',
+      paddingTop: '15%',
+      paddingBottom: '15%',
       paddingLeft: '8%',
       paddingRight: '8%',
       justifyContent: 'space-evenly',
@@ -60,7 +65,7 @@ const GoalCreationModal = ({
     },
     input: {
       width: '60%',
-      color: PlatformColor('systemGray'),
+      color: PlatformColor('systemGray6'),
     },
     text: {
       marginBottom: '4%',
@@ -111,7 +116,7 @@ const GoalCreationModal = ({
   return (
     <Modal animationType="fade" visible={visible} transparent>
       <BlurView style={styles.blur} intensity={100}>
-        <ContainerView style={styles.contentContainer}>
+        <LinearGradient colors={['transparent', colorScheme === 'dark' ?  'rgba(117,117,117,0.5)' :  'rgba(224,224,224,0.5)' , 'transparent']} style={styles.contentContainer}>
           <ContainerView style={styles.inputAndButton}>
             <TextInput
               ref={inputRef}
@@ -174,7 +179,7 @@ const GoalCreationModal = ({
             <Button title="Save" />
             <Button color="red" title="Cancel" onPress={close} />
           </ContainerView>
-        </ContainerView>
+        </LinearGradient>
       </BlurView>
     </Modal>
   );
