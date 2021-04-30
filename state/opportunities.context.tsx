@@ -18,12 +18,14 @@ export type Question = {
 };
 
 export type Opportunity = {
+  userId: string;
   id: string;
   title: string;
-  thoughts: Thought[];
-  categoryTitle: string;
+  thoughts: string[];
   questions: Question[];
   categoryId: string;
+  archived: boolean;
+  createdAt: number;
 };
 
 type State = {
@@ -39,6 +41,10 @@ type State = {
     value: boolean;
     data: any;
   };
+  archiving: {
+    value: boolean;
+    id: string;
+  };
 };
 const initialState: State = {
   opportunities: [],
@@ -53,6 +59,10 @@ const initialState: State = {
     value: false,
     data: {},
   },
+  archiving: {
+    value: false,
+    id: '',
+  },
 };
 
 enum ActionKind {
@@ -61,11 +71,13 @@ enum ActionKind {
   addQuestion = 'ADD_QUESTION',
   addedQuestion = 'ADDED_QUESTION',
   setOpportunities = 'SET_OPPORTUNITIES',
+  archive = 'ARCHIVE',
+  archived = 'ARCHIVED',
 }
 
 type Action = {
   type: ActionKind;
-  payload: any | null;
+  payload?: any;
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -108,6 +120,22 @@ const reducer = (state: State, action: Action): State => {
         ...state,
         opportunities: [...action.payload.opportunities],
       };
+    case ActionKind.archive:
+      return {
+        ...state,
+        archiving: {
+          value: true,
+          id: action.payload.id,
+        },
+      };
+    case ActionKind.archived:
+      return {
+        ...state,
+        archiving: {
+          value: false,
+          id: '',
+        },
+      };
     default:
       throw new Error();
   }
@@ -128,6 +156,21 @@ export const getOpportunity = async (id: string): Promise<Opportunity> => {
 export const OpportunitiesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [authState, authDispatch] = useContext(AuthContext);
+
+  useEffect(() => {
+    if (state.archiving.value) {
+      try {
+        db.collection('Opportunities')
+          .doc(state.archiving.id)
+          .update({ archived: true })
+          .then(() => {
+            dispatch({ type: ActionKind.archived });
+          });
+      } catch (error) {
+        console.log('error: ', error);
+      }
+    }
+  }, [state.archiving]);
 
   const fetchOpportunities = useCallback(() => {
     try {
@@ -165,22 +208,24 @@ export const OpportunitiesProvider = ({ children }) => {
           },
           {
             text: 'Save',
-            onPress: (text) => {
+            onPress: (text: string) => {
               const getThoughtIds = (): string[] => {
                 let ids: string[] = [];
-                state.creating.data.thoughts.forEach((thought: Thought) =>
-                  ids.push(thought.id)
-                );
+                state.creating.data.thoughts.forEach((thought: Thought) => {
+                  console.log('thought: ', thought);
+                  ids.push(thought.id);
+                });
                 return ids;
               };
 
-              const newOpportunity = {
+              const newOpportunity: Opportunity = {
                 userId: authState.activeUser.id,
                 createdAt: Date.now(),
                 title: text,
                 thoughts: getThoughtIds(),
                 categoryId: state.creating.data.categoryId,
                 questions: [],
+                archived: false,
               };
               db.collection('Opportunities').add(newOpportunity);
               getThoughtIds().forEach((id) => {
