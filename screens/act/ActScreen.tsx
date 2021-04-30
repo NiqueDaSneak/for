@@ -15,9 +15,11 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { ModalContext, OpportunitiesContext } from '../../state';
 import type { Opportunity } from '../../state/opportunities.context';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import OpportunityCard from '../../components/TextCards/OpportunityCard';
+import PressableTextCard from '../../components/PressableTextCard';
 
 const ActScreen = ({ navigation }) => {
-  const [date, setDate] = useState(new Date(1598051730000));
+  // const [date, setDate] = useState(new Date(1598051730000));
 
   const colorScheme = useColorScheme();
   const { fontTypes } = useFonts();
@@ -27,12 +29,15 @@ const ActScreen = ({ navigation }) => {
 
   const [oState, oDispatch] = useContext(OpportunitiesContext);
   const { opportunities }: { opportunities: Opportunity[] } = oState;
+
+  const opportunitiesToShow = opportunities?.filter((opp) => !opp?.archived);
+
   const styles = StyleSheet.create({
     pageContainer: {
       height: '100%',
       width: '100%',
       flexDirection: 'column-reverse',
-      paddingBottom: '10%',
+      paddingBottom: '8%',
     },
     segmentedControl: {
       width: '90%',
@@ -57,6 +62,7 @@ const ActScreen = ({ navigation }) => {
       marginBottom: '6%',
     },
     oppContentContainer: {
+      width: '100%',
       minHeight: '100%',
       alignItems: 'center',
       paddingTop: '4%',
@@ -78,16 +84,32 @@ const ActScreen = ({ navigation }) => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    oppTabContainer: {
+      width: '50%',
+      marginLeft: '25%',
+      paddingBottom: '8%',
+      paddingTop: '4%',
+    },
+    pressTextCard: {
+      backgroundColor:
+        colorScheme === 'dark'
+          ? PlatformColor('systemGray2')
+          : PlatformColor('systemGray6'),
+    },
   });
   return (
     <View
-      lightColor={PlatformColor('systemGray6')}
-      darkColor={PlatformColor('systemGray6')}
+      lightColor={PlatformColor('systemGray5')}
+      darkColor={PlatformColor('systemGray5')}
       style={styles.pageContainer}
     >
       <SegmentedControl
         style={styles.segmentedControl}
-        backgroundColor={PlatformColor('systemGray6')}
+        backgroundColor={
+          colorScheme === 'dark'
+            ? PlatformColor('systemGray5')
+            : PlatformColor('systemGray5')
+        }
         values={['Opportunities', 'Goals']}
         selectedIndex={controlIndex}
         onChange={(event) => {
@@ -95,35 +117,23 @@ const ActScreen = ({ navigation }) => {
         }}
       />
       {controlIndex === 0 && (
-        <FlatList
-          data={opportunities}
-          keyExtractor={(item: Opportunity) => item.title}
-          contentContainerStyle={styles.oppContentContainer}
-          renderItem={({ item }: { item: Opportunity }) => (
-            <Pressable
-              key={item.title}
-              onPress={() =>
-                console.log('show archive or convert to goal modal')
-              }
-              style={styles.oppContainer}
-            >
-              <ContainerView style={styles.starContainer}>
-                <Image
-                  resizeMode="contain"
-                  resizeMethod="resize"
-                  style={{
-                    resizeMode: 'contain',
-                    height: 32,
-                    width: 32,
-                    marginRight: '10%',
-                  }}
-                  source={require('../../assets/images/star.png')}
-                />
-                <Text>{item.title}</Text>
-              </ContainerView>
-            </Pressable>
-          )}
-        />
+        <>
+          <ContainerView style={styles.oppTabContainer}>
+            <PressableTextCard
+              style={styles.pressTextCard}
+              onPress={() => navigation.navigate('ArchiveScreen')}
+              text="Archive: 5/10"
+            />
+          </ContainerView>
+          <FlatList
+            data={opportunitiesToShow}
+            keyExtractor={(item: Opportunity) => item.title}
+            contentContainerStyle={styles.oppContentContainer}
+            renderItem={({ item }: { item: Opportunity }) => (
+              <OpportunityCard opportunity={item} edit />
+            )}
+          />
+        </>
       )}
       {controlIndex === 1 && (
         <ContainerView style={styles.goalExplainContainer}>
