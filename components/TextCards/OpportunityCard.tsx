@@ -7,6 +7,7 @@ import {
   View as ContainerView,
   Image,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import {
   OpportunitiesContext,
@@ -69,13 +70,18 @@ const OpportunityCard = ({
     const options = ['Archive', 'Convert to goal', 'Cancel'];
     const action = [
       () => {
+        // archive
         oDispatch({ type: 'ARCHIVE', payload: { id: opportunity.id } });
       },
       () => {
+        //convert
+        // REPLACE WITH BELOW WHEN YOU CAN SCHEDULE NOTIFICATIONS AND DEAL WITH GOALS
+        Alert.alert('Goal Setting is under construction!');
         console.log('convert');
       },
       () => {
-        console.log('cancel');
+        // cancel
+        return null
       },
     ];
     const destructiveButtonIndex = 0;

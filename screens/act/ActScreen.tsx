@@ -108,7 +108,9 @@ const ActScreen = ({ navigation }) => {
             ? PlatformColor('systemGray5')
             : PlatformColor('systemGray5')
         }
-        values={['Opportunities', 'Goals']}
+        values={['Opportunities']}
+        // REPLACE WITH BELOW WHEN YOU CAN SCHEDULE NOTIFICATIONS AND DEAL WITH GOALS
+        // values={['Opportunities', 'Goals']}
         selectedIndex={controlIndex}
         onChange={(event) => {
           setControlIndex(event.nativeEvent.selectedSegmentIndex);
