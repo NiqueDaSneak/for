@@ -8,14 +8,26 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { Opportunity } from '../../state/opportunities.context';
+import {
+  OpportunitiesContext,
+  Opportunity,
+} from '../../state/opportunities.context';
 import { Text } from '../Themed';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
-const OpportunityCard = ({ opportunity }: { opportunity: Opportunity }) => {
+const OpportunityCard = ({
+  opportunity,
+  edit = false,
+}: {
+  opportunity: Opportunity;
+  edit: boolean;
+}) => {
   const navigation = useNavigation();
 
   const colorScheme = useColorScheme();
 
+  const { showActionSheetWithOptions } = useActionSheet();
+  const [oState, oDispatch] = useContext(OpportunitiesContext);
   const styles = StyleSheet.create({
     pressable: {
       borderRadius: 10,
@@ -51,14 +63,48 @@ const OpportunityCard = ({ opportunity }: { opportunity: Opportunity }) => {
     },
   });
 
+  const editOptionsHandler = () => {
+    const options = ['Archive', 'Convert to goal', 'Cancel'];
+    const action = [
+      () => {
+        oDispatch({ type: 'ARCHIVE', payload: { id: opportunity.id } });
+        console.log('archive');
+      },
+      () => {
+        console.log('convert');
+      },
+      () => {
+        console.log('cancel');
+      },
+    ];
+    const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 2;
+
+    showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex,
+        destructiveButtonIndex,
+        title: 'What do you want to do with this opportunity?',
+        message:
+          'Go to the category this opportunity was created in to delete.',
+      },
+      (buttonIndex) => {
+        action[buttonIndex]();
+      }
+    );
+  };
+
   return (
     <Pressable
       key={opportunity?.title}
-      onPress={() =>
-        navigation.navigate('OpportunityScreen', {
-          opportunityId: opportunity.id,
-        })
-      }
+      onPress={() => {
+        edit
+          ? editOptionsHandler()
+          : navigation.navigate('OpportunityScreen', {
+              opportunityId: opportunity.id,
+            });
+      }}
       style={styles.pressable}
     >
       <ContainerView style={styles.container}>
