@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Text } from './Themed';
 
-const PressableTextCard = ({ onPress, text }) => {
+const PressableTextCard = ({ onPress, text, style = {} }) => {
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -27,6 +27,7 @@ const PressableTextCard = ({ onPress, text }) => {
       width: '90%',
       marginLeft: '5%',
       marginBottom: '5%',
+      ...style,
     },
   });
   return (
