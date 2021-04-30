@@ -15,7 +15,7 @@ import CategoryScreen from '../screens/align/CategoryScreen';
 import { DigitalThoughtsContext } from '../state';
 import OpportunityScreen from '../screens/align/OpportunityScreen';
 import ActScreen from '../screens/act/ActScreen';
-
+import ArchiveScreen from '../screens/act/ArchiveScreen'
 const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -118,7 +118,9 @@ const ActStack = createStackNavigator();
 const ActNavigator = () => {
   return (
     <ActStack.Navigator>
-      <ActStack.Screen name="ActScreen" component={ActScreen}></ActStack.Screen>
+      <ActStack.Screen name="ActScreen" component={ActScreen} />
+      <ActStack.Screen name="ArchiveScreen" component={ArchiveScreen} />
+
       {/* <ActStack.Screen
         name="OpportunityScreen"
         component={OpportunityScreen}
