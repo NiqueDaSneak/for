@@ -19,8 +19,6 @@ import OpportunityCard from '../../components/TextCards/OpportunityCard';
 import PressableTextCard from '../../components/PressableTextCard';
 
 const ActScreen = ({ navigation }) => {
-  // const [date, setDate] = useState(new Date(1598051730000));
-
   const colorScheme = useColorScheme();
   const { fontTypes } = useFonts();
   const [controlIndex, setControlIndex] = useState(0);
@@ -121,8 +119,14 @@ const ActScreen = ({ navigation }) => {
           <ContainerView style={styles.oppTabContainer}>
             <PressableTextCard
               style={styles.pressTextCard}
-              onPress={() => navigation.navigate('ArchiveScreen')}
-              text="Archive: 5/10"
+              onPress={() =>
+                navigation.navigate('ArchiveScreen', {
+                  opportunities: opportunities.filter((opp) => !!opp.archived),
+                })
+              }
+              text={`Archive: ${
+                opportunities.filter((opp) => !!opp.archived).length
+              }/${opportunities.length}`}
             />
           </ContainerView>
           <FlatList
