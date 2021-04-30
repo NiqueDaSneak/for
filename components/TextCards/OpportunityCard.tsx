@@ -18,9 +18,11 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 const OpportunityCard = ({
   opportunity,
   edit = false,
+  disabled = false,
 }: {
   opportunity: Opportunity;
-  edit: boolean;
+  edit?: boolean;
+  disabled?: boolean;
 }) => {
   const navigation = useNavigation();
 
@@ -68,7 +70,6 @@ const OpportunityCard = ({
     const action = [
       () => {
         oDispatch({ type: 'ARCHIVE', payload: { id: opportunity.id } });
-        console.log('archive');
       },
       () => {
         console.log('convert');
@@ -99,11 +100,15 @@ const OpportunityCard = ({
     <Pressable
       key={opportunity?.title}
       onPress={() => {
-        edit
-          ? editOptionsHandler()
-          : navigation.navigate('OpportunityScreen', {
-              opportunityId: opportunity.id,
-            });
+        if (disabled) {
+          return null;
+        } else {
+          edit
+            ? editOptionsHandler()
+            : navigation.navigate('OpportunityScreen', {
+                opportunityId: opportunity.id,
+              });
+        }
       }}
       style={styles.pressable}
     >
