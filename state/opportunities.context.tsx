@@ -252,8 +252,6 @@ export const OpportunitiesProvider = ({ children }) => {
       let updatedOpportunity;
 
       switch (questionType) {
-        case 'DELETE':
-          break;
         case 'BEST':
           updatedOpportunity = {
             ...activeOpportunity,

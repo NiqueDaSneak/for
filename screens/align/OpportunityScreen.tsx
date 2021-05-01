@@ -32,7 +32,6 @@ const OpportunityScreen = ({ route }) => {
 
   useEffect(() => {
     updateOpportunity();
-    return () => updateOpportunity;
   }, [updateOpportunity]);
 
   const getThoughts = useCallback(() => {
@@ -45,7 +44,6 @@ const OpportunityScreen = ({ route }) => {
 
   useEffect(() => {
     getThoughts();
-    return () => getThoughts;
   }, [getThoughts]);
 
   const styles = StyleSheet.create({
