@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Keyboard,
   PlatformColor,
@@ -6,18 +6,17 @@ import {
   useColorScheme,
   View as ContainerView,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { useFonts } from '../hooks/useFonts';
-import { Question } from '../state/opportunities.context';
+import { Question, updateToDoList } from '../state/opportunities.context';
 import { Text } from './Themed';
 
-const ToDoList = ({ questionData }: { questionData: Question }) => {
+const ToDoList = ({ question }: { question: Question }) => {
   const colorScheme = useColorScheme();
   const [reasonInput, setReasonInput] = useState('');
   const { fontTypes, fontSizes } = useFonts();
-
-  const [reasons, setReasons] = useState([]);
 
   const styles = StyleSheet.create({
     container: {
@@ -51,7 +50,7 @@ const ToDoList = ({ questionData }: { questionData: Question }) => {
     },
     button: {
       backgroundColor:
-        reasons.length === 3 || reasonInput.length <= 5
+        question?.reasons?.length === 3 || reasonInput.length <= 5
           ? PlatformColor('systemRed')
           : '#378C21',
       width: 50,
@@ -72,39 +71,51 @@ const ToDoList = ({ questionData }: { questionData: Question }) => {
   });
   return (
     <ContainerView style={styles.container}>
-      {questionData.questionType === 'BEST_TO_DO' && (
+      {question?.questionType === 'BEST' && (
         <Text style={[fontTypes.subHeading, styles.textStyle]}>
           The three best reasons to do it:
         </Text>
       )}
-      {questionData.questionType === 'BEST_NOT_TO_DO' && (
+      {question?.questionType === 'NOT_BEST' && (
         <Text style={[fontTypes.subHeading, styles.textStyle]}>
           The three best reasons NOT to do it:
         </Text>
       )}
       <ContainerView style={styles.inputContainer}>
         <TextInput
-          editable={reasons.length < 3}
+          editable={question?.reasons?.length < 3}
           onChangeText={(text) => setReasonInput(text)}
           value={reasonInput}
           style={styles.input}
         />
         <Pressable
-          disabled={reasons.length === 3 || reasonInput.length <= 5}
+          disabled={question?.reasons?.length === 3 || reasonInput.length <= 5}
           onPress={() => {
             Keyboard.dismiss();
+            updateToDoList(question?.id, reasonInput);
             setReasonInput('');
-            setReasons([...reasons, reasonInput]);
           }}
           style={styles.button}
         >
-          <Text style={fontTypes.heading}>+</Text>
+          {question?.reasons?.length === 3 || reasonInput.length <= 5 ? (
+            <Text style={fontTypes.heading}>+</Text>
+          ) : (
+            <Image
+              resizeMode="contain"
+              resizeMethod="resize"
+              style={{
+                width: 22,
+                height: 22,
+              }}
+              source={require('../assets/images/white-check.png')}
+            />
+          )}
         </Pressable>
       </ContainerView>
-      {reasons.length > 0 && (
+      {question?.reasons?.length > 0 && (
         <ContainerView style={styles.reason}>
-          {reasons.map((reason) => (
-            <Text style={styles.reasonText}>{`-${reason}`}</Text>
+          {question?.reasons?.map((reason: string) => (
+            <Text key={reason} style={styles.reasonText}>{`-${reason}`}</Text>
           ))}
         </ContainerView>
       )}
