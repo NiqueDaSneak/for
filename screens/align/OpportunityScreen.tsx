@@ -12,9 +12,8 @@ import { View, Text } from '../../components/Themed';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { OpportunitiesContext } from '../../state';
 import OpportunityQuestions from '../../components/OpportunityQuestions';
-import { useKeyboard } from '../../hooks/useKeyboard';
 import { getOpportunity, Opportunity } from '../../state/opportunities.context';
-import { getThought, Thought } from '../../state/digital-thoughts.context';
+import { getThought } from '../../state/digital-thoughts.context';
 
 const OpportunityScreen = ({ route }) => {
   const colorScheme = useColorScheme();
@@ -123,7 +122,7 @@ const OpportunityScreen = ({ route }) => {
           darkColor={String(PlatformColor('systemGray6'))}
           style={styles.oppQuestionsContainer}
         >
-          <OpportunityQuestions questions={opportunity?.questions} />
+          <OpportunityQuestions opportunityId={opportunity?.id} />
         </View>
       )}
       <Pressable
@@ -152,7 +151,7 @@ const OpportunityScreen = ({ route }) => {
                 type: 'ADD_QUESTION',
                 payload: {
                   questionType: actions[buttonIndex],
-                  opportunityTitle: opportunity?.title,
+                  opportunityId: opportunity?.id,
                 },
               });
             }
