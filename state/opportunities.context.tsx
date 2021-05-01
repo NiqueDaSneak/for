@@ -6,15 +6,27 @@ import React, {
   useCallback,
 } from 'react';
 import { Alert } from 'react-native';
-import { db } from '../firebase';
+import firebase, { db } from '../firebase';
 import { AuthContext } from './auth.context';
 import { Thought, setWithOpportunity } from './digital-thoughts.context';
 
 export const OpportunitiesContext = createContext();
 
+enum QuestionTypes {
+  delete = 'DELETE',
+  best = 'BEST',
+  notBest = 'NOT_BEST',
+  counter = 'COUNTER',
+  how = 'HOW',
+}
+
 export type Question = {
-  questionType: string;
-  reasons: string[];
+  id: string;
+  opportunityId: string;
+  questionType: QuestionTypes;
+  reasons?: string[];
+  count?: number;
+  input?: string;
 };
 
 export type Opportunity = {
@@ -22,7 +34,7 @@ export type Opportunity = {
   id: string;
   title: string;
   thoughts: string[];
-  questions: Question[];
+  questions: string[];
   categoryId: string;
   archived: boolean;
   createdAt: number;
@@ -30,6 +42,7 @@ export type Opportunity = {
 
 type State = {
   opportunities: Opportunity[];
+  questions: Question[],
   creating: {
     value: boolean;
     data: {
@@ -45,9 +58,15 @@ type State = {
     value: boolean;
     id: string;
   };
+  fetchQuestions: {
+    value: boolean;
+    id: string;
+  }
+
 };
 const initialState: State = {
   opportunities: [],
+  questions: [],
   creating: {
     value: false,
     data: {
@@ -63,6 +82,10 @@ const initialState: State = {
     value: false,
     id: '',
   },
+  fetchQuestions: {
+    value: false,
+    id: ''
+  }
 };
 
 enum ActionKind {
@@ -73,6 +96,8 @@ enum ActionKind {
   setOpportunities = 'SET_OPPORTUNITIES',
   archive = 'ARCHIVE',
   archived = 'ARCHIVED',
+  fetchQuestions = 'FETCH_QUESTIONS',
+  fetchedQuestions = 'FETCHED_QUESTIONS'
 }
 
 type Action = {
@@ -82,6 +107,23 @@ type Action = {
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case ActionKind.fetchQuestions:
+      return {
+        ...state,
+        fetchQuestions: {
+          value: true,
+          id: action.payload.id
+        }
+      }
+    case ActionKind.fetchedQuestions:
+      return {
+        ...state,
+        questions: action.payload.questions,
+        fetchQuestions: {
+          value: false,
+          id: ''
+        }
+      }
     case ActionKind.creatingOpportunity:
       return {
         ...state,
@@ -113,7 +155,6 @@ const reducer = (state: State, action: Action): State => {
           value: false,
           data: {},
         },
-        opportunities: action.payload.allOpportunities,
       };
     case ActionKind.setOpportunities:
       return {
@@ -141,6 +182,13 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
+export const updateToDoList = (id: string, input: string) => {
+  return db
+    .collection('Questions')
+    .doc(id)
+    .update({ reasons: firebase.firestore.FieldValue.arrayUnion(input) });
+};
+
 export const getOpportunity = async (id: string): Promise<Opportunity> => {
   let opportunity: Opportunity[] = [];
   await db
@@ -148,7 +196,7 @@ export const getOpportunity = async (id: string): Promise<Opportunity> => {
     .doc(id)
     .get()
     .then((doc) => {
-      opportunity.push(doc.data());
+      opportunity.push({ id: doc.id, ...doc.data() });
     });
   return opportunity[0];
 };
@@ -156,6 +204,22 @@ export const getOpportunity = async (id: string): Promise<Opportunity> => {
 export const OpportunitiesProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [authState, authDispatch] = useContext(AuthContext);
+
+  useEffect(() => {
+  if (state.fetchQuestions.value) {
+    db.collection('Questions')
+      .onSnapshot((snapshot) => {
+        let questions:Question[] = []
+        snapshot.forEach(doc => {
+          questions.push({id: doc.id, ...doc.data()})
+        })
+        dispatch({
+          type: ActionKind.fetchedQuestions,
+          payload: { questions: questions }
+        })
+    });
+  }
+},  [state.fetchQuestions, dispatch])
 
   useEffect(() => {
     if (state.archiving.value) {
@@ -239,76 +303,102 @@ export const OpportunitiesProvider = ({ children }) => {
     }
   }, [state.creating]);
 
-  useEffect(() => {
+  const addingQuestion = useCallback(() => {
     if (state.addQuestion.value) {
-      let { questionType, opportunityTitle } = state.addQuestion.data;
-      const activeOpportunity = state.opportunities.filter(
-        (opp) => opp.title === opportunityTitle
-      )[0];
-
-      const allOthers = state.opportunities.filter(
-        (opp) => opp.title !== opportunityTitle
-      );
-      let updatedOpportunity;
+      let { questionType, opportunityId } = state.addQuestion.data;
+      console.log('questionType: ', questionType);
+      console.log('opportunityId: ', opportunityId);
 
       switch (questionType) {
+        // case 'DELETE':
         case 'BEST':
-          updatedOpportunity = {
-            ...activeOpportunity,
-            questions: [
-              ...activeOpportunity.questions,
-              {
-                questionType: 'BEST_TO_DO',
-                reasons: [],
-              },
-            ],
-          };
+          // updatedOpportunity = {
+          //   ...activeOpportunity,
+          //   questions: [
+          //     ...activeOpportunity.questions,
+          //     {
+          //       questionType: 'BEST_TO_DO',
+          //       reasons: [],
+          //     },
+          //   ],
+          // };
 
+          // CREATE NEW OPPORTUNITY QUESTION
+          let newQuestion: Question = {
+            questionType: QuestionTypes.best,
+            opportunityId: opportunityId,
+            reasons: [],
+          };
+          console.log('creating question');
+          db.collection('Questions')
+            .add(newQuestion)
+            .then((doc) => {
+              console.log('putting in opportunity');
+              db.collection('Opportunities')
+                .doc(opportunityId)
+                .update({
+                  questions: firebase.firestore.FieldValue.arrayUnion(doc.id),
+                });
+            });
           break;
         case 'NOT_BEST':
-          updatedOpportunity = {
-            ...activeOpportunity,
-            questions: [
-              ...activeOpportunity.questions,
-              {
-                questionType: 'BEST_NOT_TO_DO',
-                reasons: [],
-              },
-            ],
-          };
+          // updatedOpportunity = {
+          //   ...activeOpportunity,
+          //   questions: [
+          //     ...activeOpportunity.questions,
+          //     {
+          //       questionType: 'BEST_NOT_TO_DO',
+          //       reasons: [],
+          //     },
+          //   ],
+          // };
           break;
         case 'COUNTER':
-          updatedOpportunity = {
-            ...activeOpportunity,
-            questions: [
-              ...activeOpportunity.questions,
-              {
-                questionType: 'COUNTER',
-              },
-            ],
-          };
+          // updatedOpportunity = {
+          //   ...activeOpportunity,
+          //   questions: [
+          //     ...activeOpportunity.questions,
+          //     {
+          //       questionType: 'COUNTER',
+          //     },
+          //   ],
+          // };
           break;
         case 'HOW':
-          updatedOpportunity = {
-            ...activeOpportunity,
-            questions: [
-              ...activeOpportunity.questions,
-              { questionType: 'HOW_WOULD' },
-            ],
-          };
+          // updatedOpportunity = {
+          //   ...activeOpportunity,
+          //   questions: [
+          //     ...activeOpportunity.questions,
+          //     { questionType: 'HOW_WOULD' },
+          //   ],
+          // };
           break;
         default:
           break;
       }
-
-      dispatch({
-        type: ActionKind.addedQuestion,
-        payload: {
-          allOpportunities: [...allOthers, updatedOpportunity],
-        },
-      });
+      dispatch({ type: ActionKind.addedQuestion });
     }
-  }, [state.addQuestion, state.opportunities]);
+  }, [state.addQuestion.data, db]);
+  useEffect(() => {
+    addingQuestion();
+    // let question;
+    // const activeOpportunity = state.opportunities.filter(
+    //   (opp) => opp.title === opportunityTitle
+    // )[0];
+
+    // const allOthers = state.opportunities.filter(
+    //   (opp) => opp.title !== opportunityTitle
+    // );
+    // let updatedOpportunity;
+
+    // dispatch({
+    //   type: ActionKind.addedQuestion,
+    //   payload: {
+    //     allOpportunities: [...allOthers, updatedOpportunity],
+    //   },
+    // });
+    // }
+  }, [state.addQuestion, state.opportunities, addingQuestion]);
 
   return (
     <OpportunitiesContext.Provider value={[state, dispatch]}>
