@@ -35,7 +35,7 @@ const CategoryScreen = ({ navigation, route }) => {
     (category: Category) => category.id === categoryId
   )[0];
   const shownOpportunities = opportunities.filter(
-    (opportunity: Opportunity) => opportunity?.categoryId === currentCategory.id
+    (opportunity: Opportunity) => opportunity?.categoryId === currentCategory.id && !opportunity?.archived
   );
 
   useEffect(() => {
