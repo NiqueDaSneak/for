@@ -120,6 +120,7 @@ const ActScreen = ({ navigation }) => {
         <>
           <ContainerView style={styles.oppTabContainer}>
             <PressableTextCard
+              disabled={opportunitiesToShow.length === 0}
               style={styles.pressTextCard}
               onPress={() =>
                 navigation.navigate('ArchiveScreen', {
@@ -131,14 +132,35 @@ const ActScreen = ({ navigation }) => {
               }/${opportunities.length}`}
             />
           </ContainerView>
-          <FlatList
-            data={opportunitiesToShow}
-            keyExtractor={(item: Opportunity) => item.title}
-            contentContainerStyle={styles.oppContentContainer}
-            renderItem={({ item }: { item: Opportunity }) => (
-              <OpportunityCard opportunity={item} edit />
-            )}
-          />
+          {opportunitiesToShow.length === 0 ? (
+            <ContainerView style={{
+              height: '70%',
+              justifyContent: 'space-evenly',
+              alignItems: 'center'
+            }}>
+              <Image
+              resizeMode="contain"
+              resizeMethod="resize"
+              style={{
+                resizeMode: 'contain',
+                height: 190,
+                width: '100%',
+              }}
+              source={require('../../assets/images/no-opportunities.png')}
+              />
+              <Text style={{width: '80%', fontSize: 16}}>Opportunites are formed from combined thoughts! Choose a category and combine some thoughts to see the results here.</Text>
+            </ContainerView>
+          
+          ): (
+            <FlatList
+              data={opportunitiesToShow}
+              keyExtractor={(item: Opportunity) => item.title}
+              contentContainerStyle={styles.oppContentContainer}
+              renderItem={({ item }: { item: Opportunity }) => (
+                <OpportunityCard opportunity={item} edit />
+              )}
+            />
+          )}
         </>
       )}
       {controlIndex === 1 && (

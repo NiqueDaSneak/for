@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { Text } from './Themed';
 
-const PressableTextCard = ({ onPress, text, style = {} }) => {
+const PressableTextCard = ({ disabled, onPress, text, style = {} }) => {
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -31,7 +31,11 @@ const PressableTextCard = ({ onPress, text, style = {} }) => {
     },
   });
   return (
-    <Pressable onPress={() => onPress()} style={styles.container}>
+    <Pressable
+      disabled={disabled}
+      onPress={() => onPress()}
+      style={styles.container}
+    >
       <Text>{text}</Text>
     </Pressable>
   );
