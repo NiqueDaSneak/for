@@ -92,10 +92,6 @@ const reducer = (state: State, action: Action): State => {
   }
 };
 
-export const getThought = (id: string) => {
-  return db.collection('Thoughts').doc(id).get();
-};
-
 export const setWithOpportunity = (id: string) => {
   return db.collection('Thoughts').doc(id).update({ withOpportunity: true });
 };
@@ -117,32 +113,6 @@ export const DigitalThoughtsProvider = ({ children }) => {
       });
     });
   };
-
-  const fetchThoughts = useCallback(() => {
-    try {
-      db.collection('Thoughts')
-        .where('userId', '==', authState.activeUser.id)
-        .onSnapshot((querySnapshot) => {
-          let thoughts: Thought[] = [];
-          querySnapshot.forEach((doc) => {
-            thoughts.push({ id: doc.id, ...doc.data() });
-          });
-          dispatch({
-            type: ActionKind.setThoughts,
-            payload: {
-              thoughts: thoughts,
-            },
-          });
-        });
-    } catch (error) {
-      console.log('error: ', error);
-    }
-  }, [authState.activeUser.id]);
-
-  useEffect(() => {
-    fetchThoughts();
-    return () => fetchThoughts();
-  }, [fetchThoughts]);
 
   useEffect(() => {
     if (state.consumeResponse.value) {
