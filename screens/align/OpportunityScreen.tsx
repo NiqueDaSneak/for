@@ -156,22 +156,14 @@ const OpportunityScreen = ({ route }) => {
       <Pressable
         onPress={() => {
           const options = [
-            'Delete Opportunity',
             'Three best reasons to do',
             'Three best reasons to NOT do',
             '0-100',
             'How would you go about...',
             'Cancel',
           ];
-          const actions = [
-            'DELETE',
-            'BEST',
-            'NOT_BEST',
-            'COUNTER',
-            'HOW_WOULD',
-          ];
-
-          const destructiveButtonIndex = 0;
+          const actions = ['BEST', 'NOT_BEST', 'COUNTER', 'HOW_WOULD'];
+          const destructiveButtonIndex = 4;
           const cancelButtonIndex = 5;
 
           showActionSheetWithOptions(
