@@ -137,7 +137,6 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
 
   return (
     <View style={styles.container}>
-      {console.log('acState.stage: ', acState.stage)}
       <View
         darkColor={PlatformColor('systemGray5')}
         lightColor={PlatformColor('systemGray6')}
