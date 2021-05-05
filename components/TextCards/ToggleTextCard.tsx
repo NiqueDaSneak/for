@@ -21,7 +21,7 @@ const ToggleTextCard = ({
   thought: Thought;
   isCategorizeActive: boolean;
   activeCategory: string;
-}) => {
+  }) => {
   const colorScheme = useColorScheme();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -79,7 +79,7 @@ const ToggleTextCard = ({
   return (
     <View
       lightColor="#f8fbf8"
-      darkColor={String(PlatformColor('systemGray6'))}
+      darkColor={PlatformColor('systemGray6')}
       style={styles.container}
     >
       {isCategorizeActive && (
