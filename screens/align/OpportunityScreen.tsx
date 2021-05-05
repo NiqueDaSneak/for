@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useCallback, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   PlatformColor,
   Pressable,
@@ -10,40 +11,55 @@ import { FlatList } from 'react-native-gesture-handler';
 import TextCard from '../../components/TextCards/TextCard';
 import { View, Text } from '../../components/Themed';
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { OpportunitiesContext } from '../../state';
+import { AuthContext, OpportunitiesContext } from '../../state';
 import OpportunityQuestions from '../../components/OpportunityQuestions';
-import { getOpportunity, Opportunity } from '../../state/opportunities.context';
-import { getThought } from '../../state/digital-thoughts.context';
+import { Question } from '../../state/opportunities.context';
+import firebase, { db } from '../../firebase';
+import useFirestoreQuery from '../../hooks/useFirestoreQuery';
 
 const OpportunityScreen = ({ route }) => {
   const colorScheme = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
-  const { opportunityId } = route.params;
-  const [oState, oDispatch] = useContext(OpportunitiesContext);
-  const [opportunity, setOpportunity] = useState<Opportunity>();
-  const [thoughts, setThoughts] = useState([]);
+  const [authState] = useContext(AuthContext);
+  const [, oDispatch] = useContext(OpportunitiesContext);
 
-  const updateOpportunity = useCallback(() => {
-    getOpportunity(opportunityId).then((opportunity: Opportunity) => {
-      setOpportunity(opportunity);
-    });
-  }, [getOpportunity, setOpportunity]);
+  const { opportunityId, thoughtIds } = route.params;
+
+  const [currentQuestions, setCurrentQuestions] = useState([]);
+
+  const thoughtsRef =
+    thoughtIds.length > 0
+      ? db
+          .collection('Thoughts')
+          .where(firebase.firestore.FieldPath.documentId(), 'in', thoughtIds)
+      : db
+          .collection('Thoughts')
+          .where(firebase.firestore.FieldPath.documentId(), 'in', ['sample']);
+
+  const { data: thoughtsData } = useFirestoreQuery(thoughtsRef);
+
+  const questionsRef = db
+    .collection('Questions')
+    .where('userId', '==', authState.activeUser.id);
+  const {
+    isLoading: loadingQuestions,
+    data: questionsData,
+  } = useFirestoreQuery(questionsRef);
 
   useEffect(() => {
-    updateOpportunity();
-  }, [updateOpportunity]);
-
-  const getThoughts = useCallback(() => {
-    opportunity?.thoughts.forEach((thoughtId) => {
-      getThought(thoughtId).then((thought) => {
-        setThoughts((arr) => [...arr, thought.data()]);
-      });
-    });
-  }, [opportunity?.thoughts, getThought, setThoughts]);
-
-  useEffect(() => {
-    getThoughts();
-  }, [getThoughts]);
+    if (!loadingQuestions && questionsData) {
+      setCurrentQuestions(
+        questionsData?.docs
+          .filter((q) => q.data().opportunityId === opportunityId)
+          .map((q) => {
+            return {
+              id: q.id,
+              ...q.data(),
+            };
+          })
+      );
+    }
+  }, [questionsData, loadingQuestions, setCurrentQuestions]);
 
   const styles = StyleSheet.create({
     container: {
@@ -52,7 +68,7 @@ const OpportunityScreen = ({ route }) => {
       backgroundColor:
         colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f8fbf8',
     },
-    oppContainer: {
+    thoughtsContainer: {
       width: '100%',
       alignItems: 'center',
       paddingTop: '4%',
@@ -83,21 +99,25 @@ const OpportunityScreen = ({ route }) => {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    flatList: { height: '30%' },
   });
 
   return (
     <View
       lightColor="#f5f5f5"
-      darkColor={String(PlatformColor('systemGray6'))}
+      darkColor={PlatformColor('systemGray6')}
       style={styles.container}
     >
       <FlatList
-        keyExtractor={(item) => item.text}
-        data={thoughts}
-        renderItem={({ item: thought }) => <TextCard text={thought?.text} />}
-        contentContainerStyle={styles.oppContainer}
+        style={styles.flatList}
+        keyExtractor={(item) => item.data().text}
+        data={thoughtsData?.docs}
+        renderItem={({ item: thought }) => (
+          <TextCard text={thought?.data().text} />
+        )}
+        contentContainerStyle={styles.thoughtsContainer}
       />
-      {opportunity?.questions?.length === 0 ? (
+      {currentQuestions.length === 0 ? (
         <View style={styles.opportunity}>
           <Image
             resizeMode="contain"
@@ -119,10 +139,18 @@ const OpportunityScreen = ({ route }) => {
       ) : (
         <View
           lightColor="#f5f5f5"
-          darkColor={String(PlatformColor('systemGray6'))}
+          darkColor={PlatformColor('systemGray6')}
           style={styles.oppQuestionsContainer}
         >
-          <OpportunityQuestions opportunityId={opportunity?.id} />
+          <OpportunityQuestions
+            opportunityId={opportunityId}
+            questions={currentQuestions.map((question: Question) => {
+              return {
+                id: question.id,
+                ...question,
+              };
+            })}
+          />
         </View>
       )}
       <Pressable
@@ -135,7 +163,13 @@ const OpportunityScreen = ({ route }) => {
             'How would you go about...',
             'Cancel',
           ];
-          const actions = ['DELETE', 'BEST', 'NOT_BEST', 'COUNTER', 'HOW'];
+          const actions = [
+            'DELETE',
+            'BEST',
+            'NOT_BEST',
+            'COUNTER',
+            'HOW_WOULD',
+          ];
 
           const destructiveButtonIndex = 0;
           const cancelButtonIndex = 5;
@@ -147,13 +181,17 @@ const OpportunityScreen = ({ route }) => {
               destructiveButtonIndex,
             },
             (buttonIndex) => {
-              oDispatch({
-                type: 'ADD_QUESTION',
-                payload: {
-                  questionType: actions[buttonIndex],
-                  opportunityId: opportunity?.id,
-                },
-              });
+              currentQuestions.filter(
+                (q: Question) => q.questionType === actions[buttonIndex]
+              ).length > 0
+                ? Alert.alert('You have already selected this question.')
+                : oDispatch({
+                    type: 'ADD_QUESTION',
+                    payload: {
+                      questionType: actions[buttonIndex],
+                      opportunityId: opportunityId,
+                    },
+                  });
             }
           );
         }}
