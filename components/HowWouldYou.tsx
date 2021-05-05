@@ -1,55 +1,78 @@
-import React, { useState, useRef } from 'react';
-import { PlatformColor, TextInput, useColorScheme } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Button,
+  PlatformColor,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
+} from 'react-native';
+import { db } from '../firebase';
 import { useFonts } from '../hooks/useFonts';
-import { useKeyboard } from '../hooks/useKeyboard';
+import { Question } from '../state/opportunities.context';
 import { View, Text } from './Themed';
-const HowWouldYou = () => {
-  const { keyboardHeight } = useKeyboard();
+
+const HowWouldYou = ({ question }: { question: Question }) => {
   const { fontTypes, fontSizes } = useFonts();
-  const [text, setText] = useState('');
   const colorScheme = useColorScheme();
-  const ref = useRef({ isFocused: () => false });
+
+  const [text, setText] = useState(question.input);
+  const [saveInput, setSaveInput] = useState(false);
+
+  useEffect(() => {
+    if (saveInput) {
+      try {
+        db.collection('Questions').doc(question.id).update({ input: text });
+      } catch (error) {
+        console.log('err: ', error);
+      } finally {
+        setSaveInput(false);
+      }
+    }
+  }, [saveInput, text]);
+
+  const styles = StyleSheet.create({
+    container: {
+      paddingTop: '4%',
+      width: '100%',
+      paddingBottom: '10%',
+    },
+    input: {
+      marginTop: '4%',
+      borderRadius: 10,
+      fontSize: fontSizes.medium,
+      borderColor:
+        colorScheme === 'dark'
+          ? PlatformColor('systemGray')
+          : PlatformColor('systemGray'),
+      borderWidth: 1,
+      width: '90%',
+      marginLeft: '5%',
+      height: 180,
+      padding: '2%',
+      color:
+        colorScheme === 'dark'
+          ? PlatformColor('systemGray')
+          : PlatformColor('systemGray'),
+    },
+    text: { marginLeft: '4%' },
+  });
+
   return (
     <View
       lightColor="#f5f5f5"
-      darkColor={String(PlatformColor('systemGray6'))}
-      style={{
-        paddingTop: '4%',
-        width: '100%',
-        bottom:
-          ref.current.isFocused() && keyboardHeight !== 0
-            ? keyboardHeight - 90
-            : null,
-        paddingBottom: '10%',
-      }}
+      darkColor={PlatformColor('systemGray6')}
+      style={styles.container}
     >
-      <Text style={[fontTypes.subHeading, { marginLeft: '4%' }]}>
+      <Text style={[fontTypes.subHeading, styles.text]}>
         How would you go about making this change?
       </Text>
       <TextInput
-        ref={ref}
         multiline
         onChangeText={(text) => setText(text)}
         value={text}
-        style={{
-          marginTop: '4%',
-          borderRadius: 10,
-          fontSize: fontSizes.medium,
-          borderColor:
-            colorScheme === 'dark'
-              ? PlatformColor('systemGray')
-              : PlatformColor('systemGray'),
-          borderWidth: 1,
-          width: '90%',
-          marginLeft: '5%',
-          height: 180,
-          padding: '2%',
-          color:
-            colorScheme === 'dark'
-              ? PlatformColor('systemGray')
-              : PlatformColor('systemGray'),
-        }}
+        style={styles.input}
       />
+      <Button title="Save Response" onPress={() => setSaveInput(true)} />
     </View>
   );
 };
