@@ -23,9 +23,10 @@ import { db } from '../firebase';
 type Props = {
   isCategorizeActive: (val: boolean) => void;
 };
+
 const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
-  const [authState, authDispatch] = useContext(AuthContext);
+  const [authState,] = useContext(AuthContext);
   const [controlIndex, setControlIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [confirming, setConfirming] = useState(false);
