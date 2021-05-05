@@ -1,57 +1,46 @@
-import React, { useContext, useEffect, useState } from 'react';
-import {
-  PlatformColor,
-  StyleSheet,
-  useColorScheme,
-  Image,
-  Pressable,
-  View as ContainerView,
-} from 'react-native';
+import React, { useContext, useEffect } from 'react';
+import { PlatformColor, StyleSheet, useColorScheme } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Text } from '../../components/Themed';
-import {
-  AlignCategoriesContext,
-  ModalContext,
-  OpportunitiesContext,
-} from '../../state';
+import { OpportunitiesContext } from '../../state';
 import DraggableTextCard from '../../components/TextCards/DraggableTextCard';
-import { Category } from '../../state/align-categories.context';
 import { Opportunity } from '../../state/opportunities.context';
 import { DraxProvider } from 'react-native-drax';
 import OpportunityCard from '../../components/TextCards/OpportunityCard';
-import { getThought, Thought } from '../../state/digital-thoughts.context';
+import { Thought } from '../../state/digital-thoughts.context';
+import useFirestoreDoc from '../../hooks/useFirestoreDoc';
+import firebase, { db } from '../../firebase';
+import useFirestoreQuery from '../../hooks/useFirestoreQuery';
 
 const CategoryScreen = ({ navigation, route }) => {
   const colorScheme = useColorScheme();
-  const { categoryId } = route.params;
-  const [acState, acDispatch] = useContext(AlignCategoriesContext);
-  const [oState, oDispatch] = useContext(OpportunitiesContext);
-  const [mState, mDispatch] = useContext(ModalContext);
-  const [currentCategoryThoughts, setCurrentCategoryThoughts] = useState<Thought[]>([]);
-  const { opportunities } = oState;
-  const { categories } = acState;
+  const { categoryId, thoughtIds } = route.params;
+  const [, oDispatch] = useContext(OpportunitiesContext);
 
-  const currentCategory = categories?.filter(
-    (category: Category) => category.id === categoryId
-  )[0];
-  const shownOpportunities = opportunities.filter(
-    (opportunity: Opportunity) => opportunity?.categoryId === currentCategory.id && !opportunity?.archived
-  );
+  const categoryRef = db.collection('Categories').doc(categoryId);
+  const {
+    isLoading: isLoadingCategory,
+    data: currentCategory,
+  } = useFirestoreDoc(categoryRef);
+
+  const thoughtsRef =
+    thoughtIds.length > 0
+      ? db
+          .collection('Thoughts')
+          .where(firebase.firestore.FieldPath.documentId(), 'in', thoughtIds)
+      : db
+          .collection('Thoughts')
+          .where(firebase.firestore.FieldPath.documentId(), 'in', ['sample']);
+
+  const { data: thoughtsData } = useFirestoreQuery(thoughtsRef);
+
+  const opportunityRef = db
+    .collection('Opportunities')
+    .where('categoryId', '==', categoryId);
+  const { data: opportunityData } = useFirestoreQuery(opportunityRef);
 
   useEffect(() => {
-    navigation.setOptions({ title: `${currentCategory.title}` });
-  }, []);
-
-  useEffect(() => {
-    currentCategory.thoughts.forEach((id: string) => {
-      getThought(id).then((thought) => {
-        setCurrentCategoryThoughts((arr) => [
-          ...arr,
-          { id: id, ...thought.data() },
-        ]);
-      });
-    });
-  }, [currentCategory.thoughts, getThought, setCurrentCategoryThoughts]);
+    navigation.setOptions({ title: `${currentCategory?.data().title}` });
+  }, [isLoadingCategory, currentCategory]);
 
   const styles = StyleSheet.create({
     contentContainer: {
@@ -59,29 +48,33 @@ const CategoryScreen = ({ navigation, route }) => {
       backgroundColor:
         colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f5f5f5',
       paddingTop: '10%',
-      minHeight: '100%'
+      minHeight: '100%',
+    },
+    receivingStyle: {
+      backgroundColor: PlatformColor('systemGray'),
     },
   });
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer}>
       <DraxProvider>
-        {currentCategoryThoughts.map((thought: Thought) => (
-          <React.Fragment key={thought?.text}>
-            {!thought?.withOpportunity && (
+        {thoughtsData?.docs?.map((thought: Thought) => (
+          <React.Fragment key={thought?.data().text}>
+            {!thought?.data().withOpportunity && (
               <DraggableTextCard
-                text={thought?.text}
-                receivingStyle={{
-                  backgroundColor: PlatformColor('systemGray'),
-                }}
-                payload={thought}
+                text={thought?.data().text}
+                receivingStyle={styles.receivingStyle}
+                payload={{ id: thought?.id, ...thought?.data() }}
                 onDragStart={() => console.log('drag start')}
                 onReceiveDragDrop={(event) => {
                   oDispatch({
                     type: 'CREATING',
                     payload: {
-                      thoughts: [event.dragged.payload, thought],
-                      categoryId: currentCategory.id,
+                      thoughts: [
+                        event.dragged.payload,
+                        { id: thought?.id, ...thought?.data() },
+                      ],
+                      categoryId: categoryId,
                     },
                   });
                 }}
@@ -89,9 +82,15 @@ const CategoryScreen = ({ navigation, route }) => {
             )}
           </React.Fragment>
         ))}
-      {shownOpportunities.map((opportunity: Opportunity) => (
-        <OpportunityCard key={opportunity.title} opportunity={opportunity} />
-      ))}
+        {opportunityData?.docs.map((opportunity: Opportunity) => (
+          <React.Fragment key={opportunity?.data().title}>
+            {!opportunity?.data().archived && (
+              <OpportunityCard
+                opportunity={{ id: opportunity?.id, ...opportunity?.data() }}
+              />
+            )}
+          </React.Fragment>
+        ))}
       </DraxProvider>
     </ScrollView>
   );
