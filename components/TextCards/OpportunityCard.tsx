@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/core';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext} from 'react';
 import {
   PlatformColor,
   Pressable,
@@ -30,7 +30,7 @@ const OpportunityCard = ({
   const colorScheme = useColorScheme();
 
   const { showActionSheetWithOptions } = useActionSheet();
-  const [oState, oDispatch] = useContext(OpportunitiesContext);
+  const [, oDispatch] = useContext(OpportunitiesContext);
   const styles = StyleSheet.create({
     pressable: {
       borderRadius: 10,
@@ -81,7 +81,7 @@ const OpportunityCard = ({
       },
       () => {
         // cancel
-        return null
+        return null;
       },
     ];
     const destructiveButtonIndex = 0;
@@ -112,7 +112,8 @@ const OpportunityCard = ({
           edit
             ? editOptionsHandler()
             : navigation.navigate('OpportunityScreen', {
-                opportunityId: opportunity.id,
+                opportunityId: opportunity?.id,
+                thoughtIds: opportunity?.thoughts,
               });
         }
       }}
