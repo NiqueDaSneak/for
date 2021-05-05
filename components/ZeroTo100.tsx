@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import { Text } from './Themed';
 import {
+  Button,
   PlatformColor,
   StyleSheet,
   useColorScheme,
@@ -9,12 +10,43 @@ import {
 } from 'react-native';
 import { useFonts } from '../hooks/useFonts';
 import { TextInput } from 'react-native-gesture-handler';
+import { Question } from '../state/opportunities.context';
+import { db } from '../firebase';
 
-const ZeroTo100 = () => {
-  const [val, setVal] = useState(0);
+const ZeroTo100 = ({ question }: { question: Question }) => {
   const colorScheme = useColorScheme();
   const { fontTypes, fontSizes } = useFonts();
-  const [text, setText] = useState('');
+
+  const [val, setVal] = useState(question.count);
+  const [text, setText] = useState(question.input);
+  const [saveVal, setSaveVal] = useState(false);
+  const [saveInput, setSaveInput] = useState(false);
+
+  useEffect(() => {
+    if (saveInput) {
+        try {
+          db.collection('Questions').doc(question.id).update({ input: text });
+        } catch (error) {
+          console.log('err: ', error);
+        } finally {
+          setSaveVal(false);
+        }
+
+    }
+  }, [saveInput, text]);
+
+  useEffect(() => {
+    if (saveVal) {
+        try {
+          db.collection('Questions').doc(question.id).update({ count: val });
+        } catch (error) {
+          console.log('err: ', error);
+        } finally {
+          setSaveVal(false);
+        }
+
+    }
+  }, [saveVal]);
 
   const styles = StyleSheet.create({
     container: {
@@ -56,7 +88,13 @@ const ZeroTo100 = () => {
       </Text>
       <ContainerView style={styles.sliderContainer}>
         <Slider
-          onValueChange={(val) => setVal(val)}
+          value={val}
+          onTouchEnd={(val) => {
+            setSaveVal(true);
+          }}
+          onValueChange={(val) => {
+            setVal(val);
+          }}
           step={1}
           style={styles.slider}
           minimumValue={0}
@@ -85,6 +123,7 @@ const ZeroTo100 = () => {
             value={text}
             style={styles.textInput}
           />
+          <Button title="Save Response" onPress={ () => setSaveInput(true)}/>
         </>
       )}
     </ContainerView>
