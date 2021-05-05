@@ -17,25 +17,28 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import * as Haptics from 'expo-haptics';
 import { useFonts } from '../hooks/useFonts';
 import { Category, createCategory } from '../state/align-categories.context';
+import useFirestoreQuery from '../hooks/useFirestoreQuery';
+import { db } from '../firebase';
 
 type Props = {
   isCategorizeActive: (val: boolean) => void;
 };
 const CategoryFooter = ({ isCategorizeActive }: Props) => {
   const [acState, acDispatch] = useContext(AlignCategoriesContext);
-
   const [authState, authDispatch] = useContext(AuthContext);
-
-  const { categories } = acState;
-  const navigation = useNavigation();
-
   const [controlIndex, setControlIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [confirming, setConfirming] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
-  const colorScheme = useColorScheme();
 
+  const colorScheme = useColorScheme();
   const { fontTypes } = useFonts();
+  const navigation = useNavigation();
+
+  const ref = db
+    .collection('Categories')
+    .where('userId', '==', authState.activeUser.id);
+  const { isLoading, data: categoryData } = useFirestoreQuery(ref);
 
   useEffect(() => {
     if (confirmed) {
@@ -46,13 +49,15 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   }, [confirmed]);
 
   useEffect(() => {
-    acDispatch({
-      type: 'SET_ACTIVE_CATEGORY',
-      payload: {
-        category: categories[selectedIndex]?.id,
-      },
-    });
-  }, [selectedIndex]);
+    if (!isLoading && categoryData) {
+      acDispatch({
+        type: 'SET_ACTIVE_CATEGORY',
+        payload: {
+          category: categoryData?.docs[selectedIndex].id,
+        },
+      });
+    }
+  }, [selectedIndex, isLoading, categoryData]);
 
   const [animation] = useState(new Animated.Value(0));
 
@@ -131,6 +136,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
 
   return (
     <View style={styles.container}>
+      {console.log('acState.stage: ', acState.stage)}
       <View
         darkColor={PlatformColor('systemGray5')}
         lightColor={PlatformColor('systemGray6')}
@@ -146,7 +152,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
               acDispatch({
                 type: 'SET_ACTIVE_CATEGORY',
                 payload: {
-                  category: categories[selectedIndex]?.title,
+                  category: categoryData?.docs[selectedIndex].id,
                 },
               });
             }
@@ -173,7 +179,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                 {
                   text: 'Save',
                   onPress: (text) =>
-                    createCategory(text, authState.activeUser.id)
+                    createCategory(text, authState.activeUser.id),
                 },
               ]
             );
@@ -188,18 +194,19 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
           contentContainerStyle={styles.scrollContentContainer}
           style={styles.scrollView}
         >
-          {categories.map((category:Category, index: number) => (
+          {categoryData?.docs.map((category: Category, index: number) => (
             <React.Fragment key={index}>
               {controlIndex === 0 && (
                 <Pressable
                   onPress={() => {
                     return navigation.navigate('CategoryScreen', {
-                      categoryId: category.id,
+                      categoryId: category?.id,
+                      thoughtIds: category?.data().thoughts,
                     });
                   }}
                 >
                   <View style={styles.categoriesContainer}>
-                    <Text style={styles.text}>{category.title}</Text>
+                    <Text style={styles.text}>{category?.data().title}</Text>
                   </View>
                 </Pressable>
               )}
@@ -211,10 +218,10 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                       selectedIndex === index &&
                       acState.stage.thoughts.length > 0
                     ) {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                       setConfirmed(true);
                       acDispatch({ type: 'SUBMIT_STAGE' });
-                      setControlIndex(0)
-                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                      setControlIndex(0);
                       isCategorizeActive(false);
                     }
                   }}
@@ -273,7 +280,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                             ]}
                           >
                             {acState.stage.thoughts.length === 0 && !confirming
-                              ? category.title
+                              ? category?.data().title
                               : `+${acState.stage.thoughts.length}`}
                           </Text>
                         )}
@@ -297,7 +304,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
                         selectedIndex === index ? styles.activeCategory : null,
                       ]}
                     >
-                      <Text style={styles.text}>{category.title}</Text>
+                      <Text style={styles.text}>{category?.data().title}</Text>
                     </View>
                   )}
                 </Pressable>
