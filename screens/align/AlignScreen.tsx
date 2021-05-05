@@ -5,26 +5,38 @@ import {
   StyleSheet,
   useColorScheme,
   Image,
+  View as ContainerView,
 } from 'react-native';
-
 import { Text, View } from '../../components/Themed';
-import { AlignCategoriesContext, DigitalThoughtsContext } from '../../state/';
+import {
+  AlignCategoriesContext,
+  AuthContext,
+  DigitalThoughtsContext,
+} from '../../state/';
 import ToggleTextCard from '../../components/TextCards/ToggleTextCard';
-import { useKeyboard } from '../../hooks/useKeyboard';
 import CategoryFooter from '../../components/CategoryFooter';
 import { useFonts } from '../../hooks/useFonts';
+import { db } from '../../firebase';
+import useFirestoreQuery from '../../hooks/useFirestoreQuery';
 
 export default function AlignScreen() {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
-  const { thoughts, newResponses } = dtState;
+  const { newResponses } = dtState;
   const colorScheme = useColorScheme();
 
   const [isCategorizeActive, setIsCategorizeActive] = useState(false);
   const [acState] = useContext(AlignCategoriesContext);
+  const [authState] = useContext(AuthContext);
+
   const { activeCategory } = acState.stage;
 
   const { fontTypes } = useFonts();
-  
+
+  const ref = db
+    .collection('Thoughts')
+    .where('userId', '==', authState.activeUser.id);
+  const { data: thoughtsData } = useFirestoreQuery(ref);
+
   const styles = StyleSheet.create({
     createThoughtButtonContainer: {
       height: '12%',
@@ -53,7 +65,7 @@ export default function AlignScreen() {
       marginBottom: '5%',
     },
     mainContainer: {
-      height: '76%',
+      height: '100%',
       width: '100%',
       backgroundColor:
         colorScheme === 'dark' ? PlatformColor('systemGray6') : '#f8fbf8',
@@ -61,6 +73,16 @@ export default function AlignScreen() {
     responsesContentContainer: {
       marginTop: '10%',
       paddingBottom: '10%',
+    },
+    container: {
+      height: '100%',
+      width: '100%',
+      justifyContent: 'center',
+    },
+    answerMore: {
+      textAlign: 'center',
+      width: '80%',
+      marginLeft: '10%',
     },
   });
 
@@ -71,58 +93,51 @@ export default function AlignScreen() {
   }, []);
 
   return (
-    <>
-      <View
-        lightColor="#f5f5f5"
-        darkColor={PlatformColor('systemGray6').toString()}
-        style={styles.mainContainer}
-      >
-        {thoughts.length === 0 ? (
-          <>
-            <Image
-              resizeMode="contain"
-              resizeMethod="resize"
-              style={{
-                resizeMode: 'contain',
-                height: 300,
-                width: '90%',
-                marginLeft: '5%'
-              }}
-              source={require('../../assets/images/align-no-responses.png')}
-            />
-            <Text
-              style={[
-                fontTypes.subHeading,
-                {
-                  textAlign: 'center',
-                  width: '80%',
-                  marginLeft: '10%'
-                },
-              ]}
-            >
-              Answer more questions on the Tune In tab to populate this screen.
-            </Text>
-          </>
-        ) : (
+    <View
+      lightColor="#f5f5f5"
+      darkColor={PlatformColor('systemGray6')}
+      style={styles.mainContainer}
+    >
+      {thoughtsData?.docs.length === 0 ? (
+        <ContainerView style={styles.container}>
+          <Image
+            resizeMode="contain"
+            resizeMethod="resize"
+            style={{
+              resizeMode: 'contain',
+              height: 300,
+              width: '90%',
+              marginLeft: '5%',
+            }}
+            source={require('../../assets/images/align-no-responses.png')}
+          />
+          <Text style={[fontTypes.subHeading, styles.answerMore]}>
+            Answer more questions on the Tune In tab to populate this screen.
+          </Text>
+        </ContainerView>
+      ) : (
+        <>
           <FlatList
-            data={thoughts.filter(thought => !thought.categorized)}
+            data={thoughtsData?.docs.filter(
+              (thought) => !thought.data().categorized
+            )}
             contentContainerStyle={styles.responsesContentContainer}
             renderItem={({ item, index }) => {
               return (
                 <ToggleTextCard
                   activeCategory={activeCategory}
                   isCategorizeActive={isCategorizeActive}
-                  thought={item}
+                  thought={{ id: item.id, ...item.data() }}
                 />
               );
             }}
-            keyExtractor={(item) => `${item.text}`}
+            keyExtractor={(item) => `${item.data().text}`}
           />
-        )}
-      </View>
-      <CategoryFooter
-        isCategorizeActive={(val) => setIsCategorizeActive(val)}
-      />
-    </>
+          <CategoryFooter
+            isCategorizeActive={(val) => setIsCategorizeActive(val)}
+          />
+        </>
+      )}
+    </View>
   );
 }
