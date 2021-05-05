@@ -73,7 +73,7 @@ enum ActionKind {
 
 type Action = {
   type: ActionKind;
-  payload: any | undefined;
+  payload?: any;
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -183,29 +183,6 @@ const AlignCategoriesProvider = ({ children }) => {
     authDispatch({ type: 'NOT_NEW' });
   };
 
-  const fetchCategories = useCallback(() => {
-    try {
-      db.collection('Categories')
-        .where('userId', '==', authState.activeUser.id)
-        .onSnapshot((querySnapshot) => {
-          let categories: Category[] = [];
-          querySnapshot.forEach((doc) => {
-            categories.push({ id: doc.id, ...doc.data() });
-          });
-          dispatch({
-            type: ActionKind.setCategories,
-            payload: { categories: categories },
-          });
-        });
-    } catch (error) {
-      console.log('err: ', error);
-    }
-  }, [authState.activeUser.id]);
-
-  useEffect(() => {
-    fetchCategories();
-    return () => fetchCategories();
-  }, [fetchCategories]);
 
   useEffect(() => {
     if (
