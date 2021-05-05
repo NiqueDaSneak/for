@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import {
   Keyboard,
   PlatformColor,
@@ -20,7 +20,6 @@ const ToDoList = ({ question }: { question: Question }) => {
 
   const styles = StyleSheet.create({
     container: {
-      paddingTop: '4%',
       marginBottom: '4%',
     },
     textStyle: { marginLeft: '4%' },
