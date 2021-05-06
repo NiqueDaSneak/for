@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/core';
-import React, { useContext} from 'react';
+import React, { useContext } from 'react';
 import {
   PlatformColor,
   Pressable,
@@ -47,7 +47,7 @@ const OpportunityCard = ({
       shadowOpacity: 0.2,
       shadowRadius: 1.41,
       elevation: 2,
-      width: '70%',
+      minWidth: '70%',
       marginBottom: '6%',
     },
     container: {
@@ -112,6 +112,7 @@ const OpportunityCard = ({
           edit
             ? editOptionsHandler()
             : navigation.navigate('OpportunityScreen', {
+                pageTitle: opportunity?.title,
                 opportunityId: opportunity?.id,
                 thoughtIds: opportunity?.thoughts,
               });
