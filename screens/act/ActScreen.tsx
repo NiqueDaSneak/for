@@ -133,25 +133,29 @@ const ActScreen = ({ navigation }) => {
             />
           </ContainerView>
           {opportunitiesToShow.length === 0 ? (
-            <ContainerView style={{
-              height: '70%',
-              justifyContent: 'space-evenly',
-              alignItems: 'center'
-            }}>
-              <Image
-              resizeMode="contain"
-              resizeMethod="resize"
+            <ContainerView
               style={{
-                resizeMode: 'contain',
-                height: 190,
-                width: '100%',
+                height: '70%',
+                justifyContent: 'space-evenly',
+                alignItems: 'center',
               }}
-              source={require('../../assets/images/no-opportunities.png')}
+            >
+              <Image
+                resizeMode="contain"
+                resizeMethod="resize"
+                style={{
+                  resizeMode: 'contain',
+                  height: 270,
+                  width: '100%',
+                }}
+                source={require('../../assets/images/no-opportunities.png')}
               />
-              <Text style={{width: '80%', fontSize: 16}}>Opportunites are formed from combined thoughts! Choose a category and combine some thoughts to see the results here.</Text>
+              <Text style={{ width: '80%', fontSize: 16 }}>
+                Opportunites are formed from combined thoughts! Choose a
+                category and combine some thoughts to see the results here.
+              </Text>
             </ContainerView>
-          
-          ): (
+          ) : (
             <FlatList
               data={opportunitiesToShow}
               keyExtractor={(item: Opportunity) => item.title}
