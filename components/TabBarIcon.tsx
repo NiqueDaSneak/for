@@ -61,7 +61,7 @@ const TabBarIcon = (props: {
       resizeMethod="resize"
       style={{
         resizeMode: 'contain',
-        width: 30,
+        width: 35,
       }}
       source={focused ? footerIcons[name].focused : footerIcons[name].normal}
     />

@@ -26,7 +26,7 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Tune In"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}
+      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, style: {height: 95} }}
     >
       <BottomTab.Screen
         name="Tune In"
