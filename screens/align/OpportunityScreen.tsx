@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Alert,
+  Button,
   Image,
   PlatformColor,
   Pressable,
@@ -17,7 +18,7 @@ import { Question } from '../../state/opportunities.context';
 import firebase, { db } from '../../firebase';
 import useFirestoreQuery from '../../hooks/useFirestoreQuery';
 
-const OpportunityScreen = ({ route }) => {
+const OpportunityScreen = ({ route, navigation }) => {
   const colorScheme = useColorScheme();
   const { showActionSheetWithOptions } = useActionSheet();
   const [authState] = useContext(AuthContext);
@@ -45,6 +46,51 @@ const OpportunityScreen = ({ route }) => {
     isLoading: loadingQuestions,
     data: questionsData,
   } = useFirestoreQuery(questionsRef);
+
+  const [title, setTitle] = useState('');
+  useEffect(() => {
+    if (title !== '') {
+      navigation.setOptions({ title: title });
+      setTitle('');
+    }
+  }, [title]);
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          onPress={() => {
+            Alert.prompt(
+              'Edit Title',
+              'Set a new title for your opportunity',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'destructive',
+                },
+                {
+                  text: 'Save',
+                  onPress: (text: string) => {
+                    try {
+                      db.collection('Opportunities')
+                        .doc(opportunityId)
+                        .update({ title: text });
+                    } catch (error) {
+                      console.log('err: ', error)
+                    } finally {
+                      setTitle(text);
+                    }
+                  },
+                },
+              ],
+              'plain-text',
+              ''
+            );
+          }}
+          title="Edit Title"
+        />
+      ),
+    });
+  }, []);
 
   useEffect(() => {
     if (!loadingQuestions && questionsData) {
