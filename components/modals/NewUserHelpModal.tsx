@@ -33,7 +33,7 @@ const NewUserHelpModal = ({
     },
     {
       text:
-        'Once we have some answers, we can figure out which of our digital thoughts Align, and categorize them accordingly',
+        'Once we have some answers, we can figure out which of our digital thoughts Align, and categorize them accordingly.',
       image: {
         dark: require('../../assets/images/align-icon-dark.png'),
         light: require('../../assets/images/align-icon-light.png'),
