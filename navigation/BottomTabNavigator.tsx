@@ -15,7 +15,7 @@ import CategoryScreen from '../screens/align/CategoryScreen';
 import { DigitalThoughtsContext } from '../state';
 import OpportunityScreen from '../screens/align/OpportunityScreen';
 import ActScreen from '../screens/act/ActScreen';
-import ArchiveScreen from '../screens/act/ArchiveScreen'
+import ArchiveScreen from '../screens/act/ArchiveScreen';
 const BottomTab = createBottomTabNavigator();
 
 export default function BottomTabNavigator() {
@@ -108,6 +108,9 @@ function AlignNavigator() {
       <AlignStack.Screen
         name="OpportunityScreen"
         component={OpportunityScreen}
+        options={({ route }) => ({
+          title: route.params.pageTitle,
+        })}
       />
     </AlignStack.Navigator>
   );
@@ -118,14 +121,17 @@ const ActStack = createStackNavigator();
 const ActNavigator = () => {
   return (
     <ActStack.Navigator>
-      <ActStack.Screen name="ActScreen" component={ActScreen} />
+      <ActStack.Screen
+        name="ActScreen"
+        component={ActScreen}
+        options={{ title: 'Act' }}
+      />
       <ActStack.Screen name="ArchiveScreen" component={ArchiveScreen} />
 
       {/* <ActStack.Screen
         name="OpportunityScreen"
         component={OpportunityScreen}
       /> */}
-
     </ActStack.Navigator>
   );
 };
