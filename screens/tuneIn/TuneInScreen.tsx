@@ -81,6 +81,34 @@ export default function TabOneScreen({ navigation }) {
             title: 'Finances',
             image: require('../../assets/images/financial.png'),
           },
+          {
+            title: 'Purpose',
+            image: require('../../assets/images/purpose.png'),
+          },
+          {
+            title: 'Hobbies',
+            image: require('../../assets/images/hobbies.png'),
+          },
+          {
+            title: 'Travel',
+            image: require('../../assets/images/travel.png'),
+          },
+          {
+            title: 'Family',
+            image: require('../../assets/images/family.png'),
+          },
+          {
+            title: 'Time',
+            image: require('../../assets/images/time.png'),
+          },
+          {
+            title: 'Love',
+            image: require('../../assets/images/love.png'),
+          },
+          {
+            title: 'Home Life',
+            image: require('../../assets/images/home.png'),
+          },
         ]}
         renderItem={({ item }) => (
           <Pressable
