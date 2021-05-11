@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useCallback, useContext, useEffect } from 'react';
 import { createContext, useReducer } from 'react';
 import { db } from '../firebase.js';
@@ -47,11 +48,12 @@ enum ActionKind {
   setThoughts = 'SET_RESPONSES',
   newSeen = 'NEW_SEEN',
   categorized = 'CATEGORIZED',
+  responseProcessed = 'RESPONSE_PROCESSED',
 }
 
 type Action = {
   type: ActionKind;
-  payload: any | undefined;
+  payload?: any;
 };
 
 const reducer = (state: State, action: Action): State => {
@@ -63,6 +65,14 @@ const reducer = (state: State, action: Action): State => {
         consumeResponse: {
           value: true,
           response: action.payload.questionResponse,
+        },
+      };
+    case ActionKind.responseProcessed:
+      return {
+        ...state,
+        consumeResponse: {
+          value: false,
+          response: '',
         },
       };
     case ActionKind.setThoughts:
@@ -101,18 +111,30 @@ export const DigitalThoughtsProvider = ({ children }) => {
   const [authState, authDispatch] = useContext(AuthContext);
 
   // this is where the magic happens
-  const processResponse = async (response: string) => {
-    const processedResponse = response.split('. ').filter(Boolean);
-    let responsesAsObjects: Thought[] = [];
-    processedResponse.forEach((thought) => {
-      db.collection('Thoughts').add({
-        text: thought,
-        withOpportunity: false,
-        categorized: false,
-        userId: authState.activeUser.id,
+  const processResponse = useCallback(async (response: string) => {
+    await axios
+      .post(
+        'https://api.nlpcloud.io/v1/bart-large-cnn/summarization',
+        { text: response },
+        {
+          headers: {
+            Authorization: `Token 0a59e46a12f9441d31205422f4836235a37421a3`,
+          },
+        }
+      )
+      .then((res) => {
+        dispatch({ type: ActionKind.responseProcessed });
+        let { summary_text } = res.data;
+        summary_text.match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g).forEach(async (thought) => {
+          await db.collection('Thoughts').add({
+            text: thought,
+            withOpportunity: false,
+            categorized: false,
+            userId: authState.activeUser.id,
+          });
+        });
       });
-    });
-  };
+  }, [authState.activeUser.id]);
 
   useEffect(() => {
     if (state.consumeResponse.value) {
