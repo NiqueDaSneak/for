@@ -111,30 +111,35 @@ export const DigitalThoughtsProvider = ({ children }) => {
   const [authState, authDispatch] = useContext(AuthContext);
 
   // this is where the magic happens
-  const processResponse = useCallback(async (response: string) => {
-    await axios
-      .post(
-        'https://api.nlpcloud.io/v1/bart-large-cnn/summarization',
-        { text: response },
-        {
-          headers: {
-            Authorization: `Token 0a59e46a12f9441d31205422f4836235a37421a3`,
-          },
-        }
-      )
-      .then((res) => {
-        dispatch({ type: ActionKind.responseProcessed });
-        let { summary_text } = res.data;
-        summary_text.match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g).forEach(async (thought) => {
-          await db.collection('Thoughts').add({
-            text: thought,
-            withOpportunity: false,
-            categorized: false,
-            userId: authState.activeUser.id,
-          });
+  const processResponse = useCallback(
+    async (response: string) => {
+      await axios
+        .post(
+          'https://api.nlpcloud.io/v1/bart-large-cnn/summarization',
+          { text: response },
+          {
+            headers: {
+              Authorization: `Token 0a59e46a12f9441d31205422f4836235a37421a3`,
+            },
+          }
+        )
+        .then((res) => {
+          dispatch({ type: ActionKind.responseProcessed });
+          let { summary_text } = res.data;
+          summary_text
+            .match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g)
+            .forEach(async (thought) => {
+              await db.collection('Thoughts').add({
+                text: thought,
+                withOpportunity: false,
+                categorized: false,
+                userId: authState.activeUser.id,
+              });
+            });
         });
-      });
-  }, [authState.activeUser.id]);
+    },
+    [authState.activeUser.id]
+  );
 
   useEffect(() => {
     if (state.consumeResponse.value) {
