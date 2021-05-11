@@ -13,12 +13,12 @@ const initialState = {
         {
           id: '6',
           categoryId: '1',
-          text: 'What do you intend to do?',
+          text: 'What do you intend to do to create change in this area?',
         },
         {
           id: '7',
           categoryId: '1',
-          text: 'What do you think you might be able to do?',
+          text: 'What do you think you MIGHT be able to do to create change in this area?',
         },
       ],
     },
@@ -46,19 +46,13 @@ const initialState = {
           id: '10',
           categoryId: '3',
 
-          text: 'How confident are you that you can make this change?',
+          text: 'In this area, how confident are you that you can make this or any change?',
         },
         {
           id: '11',
           categoryId: '3',
 
-          text: 'What kind of support would be helpful in making this change?',
-        },
-        {
-          id: '12',
-          categoryId: '3',
-
-          text: 'What kind of support would be helpful in making this change?',
+          text: 'What kind of support would be helpful in making this or any change?',
         },
       ],
     },
@@ -70,7 +64,7 @@ const initialState = {
           id: '13',
           categoryId: '4',
           text:
-            'If you could wake up tomorrow and things changed by magic, how would things be better for you?',
+            'If you could wake up tomorrow and things changed by magic, how would things be better for you in this area?',
         },
       ],
     },
@@ -82,7 +76,7 @@ const initialState = {
           id: '14',
           categoryId: '5',
           text:
-            'What do you think might help become more confident in making a change?',
+            'What do you think might help you become more confident in making a change?',
         },
       ],
     },
