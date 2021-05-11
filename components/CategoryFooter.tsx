@@ -96,7 +96,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
       padding: 10,
       marginRight: 10,
       marginLeft: 10,
-      backgroundColor: PlatformColor('systemGray4'),
+      backgroundColor: PlatformColor('systemGray5'),
       justifyContent: 'center',
       alignItems: 'center',
       borderRadius: 10,
@@ -138,13 +138,13 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
   return (
     <View style={styles.container}>
       <View
-        darkColor={PlatformColor('systemGray5')}
+        darkColor={PlatformColor('systemGray4')}
         lightColor={PlatformColor('systemGray6')}
         style={styles.segmentedControlContainer}
       >
         <SegmentedControl
           style={styles.segmentedControl}
-          backgroundColor={PlatformColor('systemGray5')}
+          backgroundColor={PlatformColor('systemGray6')}
           values={['View Only', 'Categorize']}
           selectedIndex={controlIndex}
           onChange={(event) => {
@@ -162,7 +162,7 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
         />
       </View>
       <View
-        darkColor={PlatformColor('systemGray5')}
+        darkColor={PlatformColor('systemGray4')}
         lightColor={PlatformColor('systemGray6')}
         style={styles.categoryComponents}
       >
@@ -185,7 +185,9 @@ const CategoryFooter = ({ isCategorizeActive }: Props) => {
             );
           }}
         >
-          <View style={styles.categoriesContainer}>
+          <View style={[styles.categoriesContainer, {
+            backgroundColor: PlatformColor('systemGray')
+          }]}>
             <Text style={[styles.text, fontTypes.heading]}>+</Text>
           </View>
         </Pressable>

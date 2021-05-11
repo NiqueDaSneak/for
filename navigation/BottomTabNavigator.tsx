@@ -26,7 +26,10 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Tune In"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint, style: {height: 95} }}
+      tabBarOptions={{
+        activeTintColor: Colors[colorScheme].tint,
+        style: { height: 95 },
+      }}
     >
       <BottomTab.Screen
         name="Tune In"
@@ -126,7 +129,11 @@ const ActNavigator = () => {
         component={ActScreen}
         options={{ title: 'Act' }}
       />
-      <ActStack.Screen name="ArchiveScreen" component={ArchiveScreen} />
+      <ActStack.Screen
+        name="ArchiveScreen"
+        component={ArchiveScreen}
+        options={{ title: 'Archive' }}
+      />
 
       {/* <ActStack.Screen
         name="OpportunityScreen"
