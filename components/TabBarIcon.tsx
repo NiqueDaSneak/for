@@ -13,7 +13,7 @@ const TabBarIcon = (props: {
   name: string;
   colorScheme: string;
   focused: boolean;
-  alerted: boolean | false;
+  alerted?: boolean | false;
 }) => {
   const { name, colorScheme, focused, alerted = false } = props;
 

@@ -135,12 +135,14 @@ export const DigitalThoughtsProvider = ({ children }) => {
             summary_text
               .match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g)
               .forEach(async (thought) => {
-                await db.collection('Thoughts').add({
-                  text: thought,
-                  withOpportunity: false,
-                  categorized: false,
-                  userId: authState.activeUser.id,
-                });
+                if (thought.length > 0) {
+                  await db.collection('Thoughts').add({
+                    text: thought,
+                    withOpportunity: false,
+                    categorized: false,
+                    userId: authState.activeUser.id,
+                  });
+                }
               });
           } catch (error) {
             console.log('err: ', error);

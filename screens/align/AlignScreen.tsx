@@ -18,8 +18,9 @@ import CategoryFooter from '../../components/CategoryFooter';
 import { useFonts } from '../../hooks/useFonts';
 import { db } from '../../firebase';
 import useFirestoreQuery from '../../hooks/useFirestoreQuery';
+import { useRoute } from '@react-navigation/core';
 
-export default function AlignScreen() {
+const AlignScreen = ({ navigation }) => {
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
   const { newResponses } = dtState;
   const colorScheme = useColorScheme();
@@ -86,11 +87,12 @@ export default function AlignScreen() {
     },
   });
 
+  const route = useRoute();
   useEffect(() => {
-    if (newResponses) {
+    if (newResponses && route.name === 'AlignScreen') {
       dtDispatch({ type: 'NEW_SEEN' });
     }
-  }, []);
+  }, [newResponses, route.name]);
 
   return (
     <View
@@ -140,4 +142,6 @@ export default function AlignScreen() {
       )}
     </View>
   );
-}
+};
+
+export default AlignScreen;
