@@ -3,6 +3,7 @@ import React, { useCallback, useContext, useEffect } from 'react';
 import { createContext, useReducer } from 'react';
 import { db } from '../firebase.js';
 import { AuthContext } from './auth.context';
+import { ModalContext } from './modal.context';
 
 export const DigitalThoughtsContext = createContext();
 // I THINK THE DIFFERENCE BETWEEN THIS AND THE ALIGN CATEGORIES
@@ -19,7 +20,7 @@ export type Thought = {
 
 type State = {
   thoughts: Thought[];
-  consumeResponse: {
+  consumeAnswer: {
     value: boolean;
     response: string;
   };
@@ -32,7 +33,7 @@ type State = {
 
 const initialState: State = {
   thoughts: [],
-  consumeResponse: {
+  consumeAnswer: {
     value: false,
     response: '',
   },
@@ -62,7 +63,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         newResponses: true,
-        consumeResponse: {
+        consumeAnswer: {
           value: true,
           response: action.payload.questionResponse,
         },
@@ -70,7 +71,7 @@ const reducer = (state: State, action: Action): State => {
     case ActionKind.responseProcessed:
       return {
         ...state,
-        consumeResponse: {
+        consumeAnswer: {
           value: false,
           response: '',
         },
@@ -79,7 +80,7 @@ const reducer = (state: State, action: Action): State => {
       return {
         ...state,
         thoughts: action.payload.thoughts,
-        consumeResponse: {
+        consumeAnswer: {
           value: false,
           response: '',
         },
@@ -109,6 +110,7 @@ export const setWithOpportunity = (id: string) => {
 export const DigitalThoughtsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [authState, authDispatch] = useContext(AuthContext);
+  const [modalState, modalDispatch] = useContext(ModalContext);
 
   // this is where the magic happens
   const processResponse = useCallback(
@@ -123,29 +125,39 @@ export const DigitalThoughtsProvider = ({ children }) => {
             },
           }
         )
+        .catch((err) => {
+          console.log('err: ', err);
+        })
         .then((res) => {
           dispatch({ type: ActionKind.responseProcessed });
           let { summary_text } = res.data;
-          summary_text
-            .match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g)
-            .forEach(async (thought) => {
-              await db.collection('Thoughts').add({
-                text: thought,
-                withOpportunity: false,
-                categorized: false,
-                userId: authState.activeUser.id,
+          try {
+            summary_text
+              .match(/[^.?!]+[.!?]+[\])'"`’”]*|.+/g)
+              .forEach(async (thought) => {
+                await db.collection('Thoughts').add({
+                  text: thought,
+                  withOpportunity: false,
+                  categorized: false,
+                  userId: authState.activeUser.id,
+                });
               });
-            });
+          } catch (error) {
+            console.log('err: ', error);
+          } finally {
+            modalDispatch({ type: 'CLOSE' });
+          }
         });
     },
     [authState.activeUser.id]
   );
 
   useEffect(() => {
-    if (state.consumeResponse.value) {
-      processResponse(state.consumeResponse.response);
+    if (state.consumeAnswer.value) {
+      processResponse(state.consumeAnswer.response);
+      modalDispatch({ type: 'OPEN', modalType: 'LOADING' });
     }
-  }, [state.consumeResponse]);
+  }, [state.consumeAnswer]);
 
   useEffect(() => {
     if (state.removeThoughts.value) {

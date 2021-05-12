@@ -3,6 +3,7 @@ import { ModalContext } from '../../state';
 import PhoneVerification from './PhoneVerification';
 import NewUserHelpModal from './NewUserHelpModal';
 import GoalCreationModal from './GoalCreationModal';
+import LoadingModal from './LoadingModal';
 
 const ModalConductor = ({ colorScheme }: { colorScheme: string }) => {
   const [state, dispatch] = useContext(ModalContext);
@@ -27,6 +28,7 @@ const ModalConductor = ({ colorScheme }: { colorScheme: string }) => {
         visible={modalType === 'CREATE_GOAL'}
         close={closeModal}
       />
+      <LoadingModal visible={modalType === 'LOADING'} close={closeModal} />
     </>
   );
 };
