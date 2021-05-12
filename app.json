@@ -1,12 +1,13 @@
 {
   "expo": {
     "name": "For",
+    "description": "What are you here for?",
     "slug": "for",
-    "version": "1.0.0",
+    "version": "3.0.0",
+    "scheme": "for-fe",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/logo-square.png",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -35,7 +36,6 @@
         "appId": "1:142525087884:web:e999aedd87ce13ba4d7ba9",
         "measurementId": "G-TPVZ1S4FSW"
       }
-    },
-    "description": ""
+    }
   }
 }

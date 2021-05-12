@@ -24,7 +24,7 @@ export default function TabOneScreen({ navigation }) {
       marginBottom: 10,
       backgroundColor:
         colorScheme === 'dark'
-          ? PlatformColor('systemGray5')
+          ? PlatformColor('systemGray3')
           : PlatformColor('systemGray'),
       shadowColor: '#000',
       shadowOffset: {
