@@ -213,16 +213,11 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
             .where('authId', '==', user.uid)
             .get()
             .then((snapshot) => {
-              if (snapshot.empty) {
-                return
-              }
-              return snapshot.forEach((doc) => {
-                dispatch({
-                  type: ActionKind.loginUser,
-                  payload: {
-                    user: doc.data(),
-                  },
-                });
+              dispatch({
+                type: ActionKind.loginUser,
+                payload: {
+                  user: snapshot.docs[0].data(),
+                },
               });
             });
         } catch (err) {
