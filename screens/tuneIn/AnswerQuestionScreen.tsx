@@ -8,9 +8,11 @@ import {
   useColorScheme,
 } from 'react-native';
 import { Text, View } from '../../components/Themed';
+import { db } from '../../firebase';
 import { useFonts } from '../../hooks/useFonts';
 import { useKeyboard } from '../../hooks/useKeyboard';
-import { DigitalThoughtsContext } from '../../state/digital-thoughts.context';
+import { AuthContext } from '../../state';
+import { DigitalThoughtsContext, Thought } from '../../state/digital-thoughts.context';
 import { QuestionsContext } from '../../state/questions.context';
 
 const AnswerQuestionScreen = ({ navigation, route }) => {
@@ -22,12 +24,23 @@ const AnswerQuestionScreen = ({ navigation, route }) => {
   const [questionResponse, setQuestionResponse] = useState('');
   const { keyboardHeight } = useKeyboard();
   const inputRef = useRef(null);
+  const [authState, authDispatch] = useContext(AuthContext);
 
   const [dtState, dtDispatch] = useContext(DigitalThoughtsContext);
   const [qState, qDispatch] = useContext(QuestionsContext);
 
   const handleSave = () => {
-    dtDispatch({ type: 'CONSUME_ANSWER', payload: { questionResponse } });
+    const processedResponse = questionResponse.split('. ').filter(Boolean);
+    let responsesAsObjects: Thought[] = []; 
+    processedResponse.forEach((thought) => { 
+      db.collection('Thoughts').add({
+        text: thought,
+        withOpportunity: false,
+        categorized: false,
+        userId: authState.activeUser.id
+      })
+    })
+    // dtDispatch({ type: 'CONSUME_ANSWER', payload: { questionResponse } });
 
     let answeredQuestionData = {
       ...questionData,
